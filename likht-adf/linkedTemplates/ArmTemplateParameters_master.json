@@ -11,6 +11,9 @@
 		"BlobInput_connectionString": {
 			"value": ""
 		},
+		"WWIDWInput_connectionString": {
+			"value": ""
+		},
 		"WWIInput_connectionString": {
 			"value": ""
 		},

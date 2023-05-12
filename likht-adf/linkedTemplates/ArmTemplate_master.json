@@ -15,6 +15,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'BlobInput'"
 		},
+		"WWIDWInput_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'WWIDWInput'"
+		},
 		"WWIInput_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'WWIInput'"
@@ -55,6 +59,9 @@
 					},
 					"BlobInput_connectionString": {
 						"value": "[parameters('BlobInput_connectionString')]"
+					},
+					"WWIDWInput_connectionString": {
+						"value": "[parameters('WWIDWInput_connectionString')]"
 					},
 					"WWIInput_connectionString": {
 						"value": "[parameters('WWIInput_connectionString')]"

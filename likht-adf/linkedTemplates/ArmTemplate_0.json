@@ -15,6 +15,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'BlobInput'"
 		},
+		"WWIDWInput_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'WWIDWInput'"
+		},
 		"WWIInput_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'WWIInput'"
@@ -54,6 +58,19 @@
 				"type": "AzureBlobStorage",
 				"typeProperties": {
 					"connectionString": "[parameters('BlobInput_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/WWIDWInput')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"connectionString": "[parameters('WWIDWInput_connectionString')]"
 				}
 			},
 			"dependsOn": []
@@ -1153,7 +1170,7 @@
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"linkedServiceName": {
-					"referenceName": "WWIInput",
+					"referenceName": "WWIDWInput",
 					"type": "LinkedServiceReference"
 				},
 				"folder": {
@@ -1231,7 +1248,7 @@
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/WWIInput')]"
+				"[concat(variables('factoryId'), '/linkedServices/WWIDWInput')]"
 			]
 		},
 		{
@@ -1301,80 +1318,6 @@
 					{
 						"name": "LatestRecordedPopulation",
 						"type": "INT64"
-					},
-					{
-						"name": "ValidFrom",
-						"type": "INT96"
-					},
-					{
-						"name": "ValidTo",
-						"type": "INT96"
-					},
-					{
-						"name": "LineageKey",
-						"type": "INT96"
-					}
-				]
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ADLS')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Dimension_Customer')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ADLS",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "Data Warehouse Full Load"
-				},
-				"annotations": [],
-				"type": "Parquet",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": "Dimension_Customer.parquet",
-						"folderPath": "data/data-warehouse/Full-Load",
-						"fileSystem": "likht"
-					},
-					"compressionCodec": "snappy"
-				},
-				"schema": [
-					{
-						"name": "CustomerKey",
-						"type": "INT64"
-					},
-					{
-						"name": "WWICustomerID",
-						"type": "INT32"
-					},
-					{
-						"name": "Customer",
-						"type": "UTF8"
-					},
-					{
-						"name": "BillToCustomer",
-						"type": "UTF8"
-					},
-					{
-						"name": "Category",
-						"type": "UTF8"
-					},
-					{
-						"name": "BuyingGroup",
-						"type": "UTF8"
-					},
-					{
-						"name": "PrimaryContact",
-						"type": "UTF8"
-					},
-					{
-						"name": "PostalCode",
-						"type": "UTF8"
 					},
 					{
 						"name": "ValidFrom",
