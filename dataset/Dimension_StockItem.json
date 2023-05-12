@@ -1,0 +1,113 @@
+{
+	"name": "Dimension_StockItem",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ADLS",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Data Warehouse Full Load"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "Dimension_StockItem.parquet",
+				"folderPath": "data/data-warehouse/Full-Load",
+				"fileSystem": "likht"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "StockItemKey",
+				"type": "INT64"
+			},
+			{
+				"name": "WWIStockItemID",
+				"type": "INT32"
+			},
+			{
+				"name": "StockItem",
+				"type": "UTF8"
+			},
+			{
+				"name": "Color",
+				"type": "UTF8"
+			},
+			{
+				"name": "SellingPackage",
+				"type": "UTF8"
+			},
+			{
+				"name": "BuyingPackage",
+				"type": "UTF8"
+			},
+			{
+				"name": "Brand",
+				"type": "UTF8"
+			},
+			{
+				"name": "Size",
+				"type": "UTF8"
+			},
+			{
+				"name": "LeadTimeDays",
+				"type": "INT32"
+			},
+			{
+				"name": "QuantityPerOuter",
+				"type": "INT32"
+			},
+			{
+				"name": "IsChillerStock",
+				"type": "BOOLEAN"
+			},
+			{
+				"name": "Barcode",
+				"type": "UTF8"
+			},
+			{
+				"name": "TaxRate",
+				"type": "DECIMAL",
+				"precision": 18,
+				"scale": 3
+			},
+			{
+				"name": "UnitPrice",
+				"type": "DECIMAL",
+				"precision": 18,
+				"scale": 2
+			},
+			{
+				"name": "RecommendedRetailPrice",
+				"type": "DECIMAL",
+				"precision": 18,
+				"scale": 2
+			},
+			{
+				"name": "TypicalWeightPerUnit",
+				"type": "DECIMAL",
+				"precision": 18,
+				"scale": 3
+			},
+			{
+				"name": "Photo",
+				"type": "BINARY"
+			},
+			{
+				"name": "ValidFrom",
+				"type": "INT96"
+			},
+			{
+				"name": "ValidTo",
+				"type": "INT96"
+			},
+			{
+				"name": "LineageKey",
+				"type": "INT96"
+			}
+		]
+	}
+}

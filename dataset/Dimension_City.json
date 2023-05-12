@@ -1,0 +1,81 @@
+{
+	"name": "Dimension_City",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ADLS",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Data Warehouse Full Load"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "Dimension_City.parquet",
+				"folderPath": "data/data-warehouse/Full-Load",
+				"fileSystem": "likht"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "CityKey",
+				"type": "INT64"
+			},
+			{
+				"name": "WWICityID",
+				"type": "INT32"
+			},
+			{
+				"name": "City",
+				"type": "UTF8"
+			},
+			{
+				"name": "StateProvince",
+				"type": "UTF8"
+			},
+			{
+				"name": "Country",
+				"type": "UTF8"
+			},
+			{
+				"name": "Continent",
+				"type": "UTF8"
+			},
+			{
+				"name": "SalesTerritory",
+				"type": "UTF8"
+			},
+			{
+				"name": "Region",
+				"type": "UTF8"
+			},
+			{
+				"name": "Subregion",
+				"type": "UTF8"
+			},
+			{
+				"name": "Location",
+				"type": "BINARY"
+			},
+			{
+				"name": "LatestRecordedPopulation",
+				"type": "INT64"
+			},
+			{
+				"name": "ValidFrom",
+				"type": "INT96"
+			},
+			{
+				"name": "ValidTo",
+				"type": "INT96"
+			},
+			{
+				"name": "LineageKey",
+				"type": "INT96"
+			}
+		]
+	}
+}

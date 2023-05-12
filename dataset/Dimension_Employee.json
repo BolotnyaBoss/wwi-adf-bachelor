@@ -1,0 +1,61 @@
+{
+	"name": "Dimension_Employee",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ADLS",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Data Warehouse Full Load"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "Dimension_Employee.parquet",
+				"folderPath": "data/data-warehouse/Full-Load",
+				"fileSystem": "likht"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "EmployeeKey",
+				"type": "INT64"
+			},
+			{
+				"name": "WWIEmployeeID",
+				"type": "INT32"
+			},
+			{
+				"name": "Employee",
+				"type": "UTF8"
+			},
+			{
+				"name": "PreferredName",
+				"type": "UTF8"
+			},
+			{
+				"name": "IsSalesperson",
+				"type": "BOOLEAN"
+			},
+			{
+				"name": "Photo",
+				"type": "BINARY"
+			},
+			{
+				"name": "ValidFrom",
+				"type": "INT96"
+			},
+			{
+				"name": "ValidTo",
+				"type": "INT96"
+			},
+			{
+				"name": "LineageKey",
+				"type": "INT96"
+			}
+		]
+	}
+}

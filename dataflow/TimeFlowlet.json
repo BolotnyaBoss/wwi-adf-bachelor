@@ -1,0 +1,77 @@
+{
+	"name": "TimeFlowlet",
+	"properties": {
+		"folder": {
+			"name": "Data Warehouse Full Load"
+		},
+		"type": "Flowlet",
+		"typeProperties": {
+			"sources": [],
+			"sinks": [],
+			"transformations": [
+				{
+					"name": "GenerateNewFieldsBasedOnDate"
+				},
+				{
+					"name": "UpdateLabelColumns"
+				},
+				{
+					"name": "RenameColumns"
+				},
+				{
+					"name": "input"
+				},
+				{
+					"name": "output"
+				}
+			],
+			"scriptLines": [
+				"input(output(",
+				"          DateColumn as date",
+				"     ),",
+				"     order: 0,",
+				"     allowSchemaDrift: true) ~> input",
+				"input derive({Day Number} = dayOfMonth(DateColumn),",
+				"          Day = dayOfMonth(DateColumn),",
+				"          Month = case(month(DateColumn) == 1, 'January', month(DateColumn) == 2, 'February', month(DateColumn) == 3, 'March', month(DateColumn) == 4, 'April', \r",
+				"month(DateColumn) == 5, 'May', month(DateColumn) == 6, 'June', month(DateColumn) == 7, 'July', month(DateColumn) == 8, 'August', \r",
+				"month(DateColumn) == 9, 'September', month(DateColumn) == 10, 'October', month(DateColumn) == 11, 'November', month(DateColumn) == 12, 'December'),",
+				"          {Short Month} = case(month(DateColumn) == 1, 'Jan', month(DateColumn) == 2, 'Feb', month(DateColumn) == 3, 'Mar', month(DateColumn) == 4, 'Apr', \r",
+				"month(DateColumn) == 5, 'May', month(DateColumn) == 6, 'June', month(DateColumn) == 7, 'July', month(DateColumn) == 8, 'Aug', \r",
+				"month(DateColumn) == 9, 'Sept', month(DateColumn) == 10, 'Oct', month(DateColumn) == 11, 'Nov', month(DateColumn) == 12, 'Dec'),",
+				"          {Calendar Month Number} = month(DateColumn),",
+				"          {Calendar Month Label} = 1,",
+				"          {Calendar Year} = year(DateColumn),",
+				"          {Calendar Year Label} = 1,",
+				"          {Fiscal Month Number} = month(DateColumn) + 2,",
+				"          {Fiscal Month Label} = 1,",
+				"          {Fiscal Year} = year(DateColumn),",
+				"          {Fiscal Year Label} = 1,",
+				"          {ISO Week Number} = dayOfWeek(DateColumn)) ~> GenerateNewFieldsBasedOnDate",
+				"GenerateNewFieldsBasedOnDate derive({Calendar Year Label} = concat('CY', toString({Calendar Year})),",
+				"          {Fiscal Year Label} = concat('FY', toString({Fiscal Year})),",
+				"          {Calendar Month Label} = concat('CY', toString({Calendar Year}), '-', toString({Short Month})),",
+				"          {Fiscal Month Label} = concat('FY', toString({Calendar Year}), '-', toString({Short Month}))) ~> UpdateLabelColumns",
+				"UpdateLabelColumns select(mapColumn(",
+				"          DateColumn,",
+				"          DayNumber = {Day Number},",
+				"          Day,",
+				"          Month,",
+				"          ShortMonth = {Short Month},",
+				"          CalendarMonthNumber = {Calendar Month Number},",
+				"          CalendarMonthLabel = {Calendar Month Label},",
+				"          CalendarYear = {Calendar Year},",
+				"          CalendarYearLabel = {Calendar Year Label},",
+				"          FiscalMonthNumber = {Fiscal Month Number},",
+				"          FiscalMonthLabel = {Fiscal Month Label},",
+				"          FiscalYear = {Fiscal Year},",
+				"          FiscalYearLabel = {Fiscal Year Label},",
+				"          ISOWeekNumber = {ISO Week Number}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> RenameColumns",
+				"RenameColumns output() ~> output"
+			]
+		}
+	}
+}

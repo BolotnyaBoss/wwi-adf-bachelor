@@ -1,0 +1,374 @@
+{
+	"name": "Dimension_City",
+	"properties": {
+		"folder": {
+			"name": "Data Warehouse Full Load"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Countries",
+						"type": "DatasetReference"
+					},
+					"name": "Countries"
+				},
+				{
+					"dataset": {
+						"referenceName": "Countries_Archive",
+						"type": "DatasetReference"
+					},
+					"name": "CountriesArchive"
+				},
+				{
+					"dataset": {
+						"referenceName": "StateProvinces",
+						"type": "DatasetReference"
+					},
+					"name": "StateProvinces"
+				},
+				{
+					"dataset": {
+						"referenceName": "StateProvinces_Archive",
+						"type": "DatasetReference"
+					},
+					"name": "StateProvincesArchive"
+				},
+				{
+					"dataset": {
+						"referenceName": "Cities",
+						"type": "DatasetReference"
+					},
+					"name": "Cities"
+				},
+				{
+					"dataset": {
+						"referenceName": "Cities_Archive",
+						"type": "DatasetReference"
+					},
+					"name": "CitiesArchive"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DataWarehouse",
+						"type": "DatasetReference"
+					},
+					"name": "LoadDimensionCity"
+				}
+			],
+			"transformations": [
+				{
+					"name": "CountriesAll"
+				},
+				{
+					"name": "CountriesChangeList"
+				},
+				{
+					"name": "StateProvincesAll"
+				},
+				{
+					"name": "StateProvincesChangeList"
+				},
+				{
+					"name": "CitiesAll"
+				},
+				{
+					"name": "CitiesChangeList"
+				},
+				{
+					"name": "JoinStateProvinces"
+				},
+				{
+					"name": "JoinCountries"
+				},
+				{
+					"name": "RenameColumns"
+				},
+				{
+					"name": "UpdateValidToField"
+				},
+				{
+					"name": "AddLineageKey"
+				},
+				{
+					"name": "SortByValidFrom"
+				},
+				{
+					"name": "AddCityKey"
+				},
+				{
+					"name": "ChangeColumnsOrder"
+				},
+				{
+					"name": "EctractOneRow"
+				},
+				{
+					"name": "AddDefaultRow"
+				},
+				{
+					"name": "DefaultRow"
+				},
+				{
+					"name": "CountriesCutoff"
+				},
+				{
+					"name": "StateProvincesCutoff"
+				},
+				{
+					"name": "CitiesCutoff"
+				},
+				{
+					"name": "SelectValidityPeriods"
+				},
+				{
+					"name": "filter1"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     EndOfTime as timestamp (toTimestamp('9999-12-31 23:59:59.0000000','yyyy-MM-dd HH:mm:ss.SSS')),",
+				"     LastCutoff as timestamp (toTimestamp('2012-05-06T12:31:17.0000000','yyyy-MM-dd\\'T\\'HH:mm:ss.SSS')),",
+				"     NewCutoff as timestamp (currentTimestamp())",
+				"}",
+				"source(output(",
+				"          CountryID as integer,",
+				"          CountryName as string,",
+				"          FormalName as string,",
+				"          IsoAlpha3Code as string,",
+				"          IsoNumericCode as integer,",
+				"          CountryType as string,",
+				"          LatestRecordedPopulation as long,",
+				"          Continent as string,",
+				"          Region as string,",
+				"          Subregion as string,",
+				"          Border as string,",
+				"          LastEditedBy as integer,",
+				"          ValidFrom as timestamp,",
+				"          ValidTo as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> Countries",
+				"source(output(",
+				"          CountryID as integer,",
+				"          CountryName as string,",
+				"          FormalName as string,",
+				"          IsoAlpha3Code as string,",
+				"          IsoNumericCode as integer,",
+				"          CountryType as string,",
+				"          LatestRecordedPopulation as long,",
+				"          Continent as string,",
+				"          Region as string,",
+				"          Subregion as string,",
+				"          Border as string,",
+				"          LastEditedBy as integer,",
+				"          ValidFrom as timestamp,",
+				"          ValidTo as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> CountriesArchive",
+				"source(output(",
+				"          StateProvinceID as integer,",
+				"          StateProvinceCode as string,",
+				"          StateProvinceName as string,",
+				"          CountryID as integer,",
+				"          SalesTerritory as string,",
+				"          Border as string,",
+				"          LatestRecordedPopulation as long,",
+				"          LastEditedBy as integer,",
+				"          ValidFrom as timestamp,",
+				"          ValidTo as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> StateProvinces",
+				"source(output(",
+				"          StateProvinceID as integer,",
+				"          StateProvinceCode as string,",
+				"          StateProvinceName as string,",
+				"          CountryID as integer,",
+				"          SalesTerritory as string,",
+				"          Border as string,",
+				"          LatestRecordedPopulation as long,",
+				"          LastEditedBy as integer,",
+				"          ValidFrom as timestamp,",
+				"          ValidTo as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> StateProvincesArchive",
+				"source(output(",
+				"          CityID as integer,",
+				"          CityName as string,",
+				"          StateProvinceID as integer,",
+				"          Location as string,",
+				"          LatestRecordedPopulation as long,",
+				"          LastEditedBy as integer,",
+				"          ValidFrom as timestamp,",
+				"          ValidTo as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> Cities",
+				"source(output(",
+				"          CityID as integer,",
+				"          CityName as string,",
+				"          StateProvinceID as integer,",
+				"          Location as string,",
+				"          LatestRecordedPopulation as long,",
+				"          LastEditedBy as integer,",
+				"          ValidFrom as timestamp,",
+				"          ValidTo as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> CitiesArchive",
+				"Countries, CountriesArchive union(byName: true)~> CountriesAll",
+				"CountriesCutoff select(mapColumn(",
+				"          CountryID,",
+				"          CountryName,",
+				"          Continent,",
+				"          Region,",
+				"          Subregion,",
+				"          ValidFrom,",
+				"          ValidTo",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> CountriesChangeList",
+				"StateProvinces, StateProvincesArchive union(byName: true)~> StateProvincesAll",
+				"StateProvincesCutoff select(mapColumn(",
+				"          StateProvinceID,",
+				"          StateProvinceName,",
+				"          CountryID,",
+				"          SalesTerritory,",
+				"          ValidFrom,",
+				"          ValidTo",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> StateProvincesChangeList",
+				"Cities, CitiesArchive union(byName: true)~> CitiesAll",
+				"CitiesCutoff select(mapColumn(",
+				"          CityID,",
+				"          CityName,",
+				"          StateProvinceID,",
+				"          Location,",
+				"          LatestRecordedPopulation,",
+				"          ValidFrom,",
+				"          ValidTo",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> CitiesChangeList",
+				"CitiesChangeList, StateProvincesChangeList join(CitiesChangeList@StateProvinceID == StateProvincesChangeList@StateProvinceID",
+				"     && CitiesChangeList@ValidTo > StateProvincesChangeList@ValidFrom",
+				"     && CitiesChangeList@ValidFrom < StateProvincesChangeList@ValidTo,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'right')~> JoinStateProvinces",
+				"JoinStateProvinces, CountriesChangeList join(StateProvincesChangeList@CountryID == CountriesChangeList@CountryID,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> JoinCountries",
+				"JoinCountries select(mapColumn(",
+				"          WWICityID = CityID,",
+				"          City = CityName,",
+				"          StateProvince = StateProvinceName,",
+				"          Country = CountryName,",
+				"          Continent,",
+				"          SalesTerritory,",
+				"          Region,",
+				"          Subregion,",
+				"          Location,",
+				"          LatestRecordedPopulation,",
+				"          cValidFrom = CitiesChangeList@ValidFrom,",
+				"          cValidTo = CitiesChangeList@ValidTo,",
+				"          spValidFrom = StateProvincesChangeList@ValidFrom,",
+				"          spValidTo = StateProvincesChangeList@ValidTo,",
+				"          cnValidFrom = CountriesChangeList@ValidFrom,",
+				"          cnValidTo = CountriesChangeList@ValidTo",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> RenameColumns",
+				"SelectValidityPeriods window(over(WWICityID),",
+				"     asc(ValidFrom, true),",
+				"     ValidTo = lead(ValidFrom, 1, $EndOfTime)) ~> UpdateValidToField",
+				"filter1 derive(LoadDateTime = $NewCutoff,",
+				"          LatestRecordedPopulation = coalesce(LatestRecordedPopulation, 0)) ~> AddLineageKey",
+				"AddLineageKey sort(asc(ValidFrom, true)) ~> SortByValidFrom",
+				"SortByValidFrom keyGenerate(output(CityKey as long),",
+				"     startAt: 1L,",
+				"     stepValue: 1L) ~> AddCityKey",
+				"AddCityKey select(mapColumn(",
+				"          CityKey,",
+				"          WWICityID,",
+				"          City,",
+				"          StateProvince,",
+				"          Country,",
+				"          Continent,",
+				"          SalesTerritory,",
+				"          Region,",
+				"          Subregion,",
+				"          Location,",
+				"          LatestRecordedPopulation,",
+				"          ValidFrom,",
+				"          ValidTo,",
+				"          LineageKey = LoadDateTime",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> ChangeColumnsOrder",
+				"ChangeColumnsOrder filter(CityKey == 1) ~> EctractOneRow",
+				"ChangeColumnsOrder, DefaultRow union(byName: true)~> AddDefaultRow",
+				"EctractOneRow derive(CityKey = 0,",
+				"          WWICityID = 0,",
+				"          City = 'Unknown',",
+				"          StateProvince = 'N/A',",
+				"          Country = 'N/A',",
+				"          Continent = 'N/A',",
+				"          SalesTerritory = 'N/A',",
+				"          Region = 'N/A',",
+				"          Subregion = 'N/A',",
+				"          Location = toString(null()),",
+				"          LatestRecordedPopulation = 0,",
+				"          ValidFrom = toTimestamp('2013-01-01T00:00:00.0000000','yyyy-MM-dd\\'T\\'HH:mm:ss.SSS'),",
+				"          ValidTo = $EndOfTime) ~> DefaultRow",
+				"CountriesAll filter(ValidFrom > $LastCutoff && ValidFrom <= $NewCutoff) ~> CountriesCutoff",
+				"StateProvincesAll filter(ValidFrom > $LastCutoff && ValidFrom <= $NewCutoff) ~> StateProvincesCutoff",
+				"CitiesAll filter(ValidFrom > $LastCutoff && ValidFrom <= $NewCutoff) ~> CitiesCutoff",
+				"RenameColumns derive(ValidFrom = greatest(cValidFrom, spValidFrom, cnValidFrom),",
+				"          ValidTo = least(cValidTo, spValidTo, cnValidTo)) ~> SelectValidityPeriods",
+				"UpdateValidToField filter(ValidFrom < ValidTo) ~> filter1",
+				"AddDefaultRow sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          CityID as integer,",
+				"          CityName as string,",
+				"          StateProvinceID as integer,",
+				"          Location as binary,",
+				"          LatestRecordedPopulation as long,",
+				"          LastEditedBy as integer,",
+				"          ValidFrom as timestamp,",
+				"          ValidTo as timestamp",
+				"     ),",
+				"     format: 'parquet',",
+				"     partitionFileNames:['Dimension_City2.parquet'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> LoadDimensionCity"
+			]
+		}
+	}
+}

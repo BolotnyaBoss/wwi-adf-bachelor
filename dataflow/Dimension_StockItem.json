@@ -1,0 +1,324 @@
+{
+	"name": "Dimension_StockItem",
+	"properties": {
+		"folder": {
+			"name": "Data Warehouse Full Load"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "StockItems",
+						"type": "DatasetReference"
+					},
+					"name": "StockItems"
+				},
+				{
+					"dataset": {
+						"referenceName": "StockItems_Archive",
+						"type": "DatasetReference"
+					},
+					"name": "StockItemsArchive"
+				},
+				{
+					"dataset": {
+						"referenceName": "PackageTypes",
+						"type": "DatasetReference"
+					},
+					"name": "PackageTypes"
+				},
+				{
+					"dataset": {
+						"referenceName": "Colors",
+						"type": "DatasetReference"
+					},
+					"name": "Colors"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DataWarehouse",
+						"type": "DatasetReference"
+					},
+					"name": "LoadDimensionStickItem"
+				}
+			],
+			"transformations": [
+				{
+					"name": "StockItemsAll"
+				},
+				{
+					"name": "StockItemsCutoff"
+				},
+				{
+					"name": "StockItemsArchiveCutoff"
+				},
+				{
+					"name": "bpt"
+				},
+				{
+					"name": "spt"
+				},
+				{
+					"name": "JoinUnitPackageType"
+				},
+				{
+					"name": "JoinOuterPackageType"
+				},
+				{
+					"name": "JoinColors"
+				},
+				{
+					"name": "RenameNeededColumnsOnly"
+				},
+				{
+					"name": "UpdateValidToField"
+				},
+				{
+					"name": "AddLineageKey"
+				},
+				{
+					"name": "SortByValidFrom"
+				},
+				{
+					"name": "AddStockItemKey"
+				},
+				{
+					"name": "ChangeColumnsOrder"
+				},
+				{
+					"name": "ExtrcatOneRow"
+				},
+				{
+					"name": "AddDefaultRow"
+				},
+				{
+					"name": "DefaultRow"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     LastCutoff as timestamp (toTimestamp('2012-05-06T12:31:17.0000000','yyyy-MM-dd\\'T\\'HH:mm:ss.SSS')),",
+				"     NewCutoff as timestamp (currentTimestamp()),",
+				"     EndOfTime as timestamp (toTimestamp('9999-12-31 23:59:59.999','yyyy-MM-dd HH:mm:ss.SSS'))",
+				"}",
+				"source(output(",
+				"          StockItemID as integer,",
+				"          StockItemName as string,",
+				"          SupplierID as integer,",
+				"          ColorID as integer,",
+				"          UnitPackageID as integer,",
+				"          OuterPackageID as integer,",
+				"          Brand as string,",
+				"          Size as string,",
+				"          LeadTimeDays as integer,",
+				"          QuantityPerOuter as integer,",
+				"          IsChillerStock as boolean,",
+				"          Barcode as string,",
+				"          TaxRate as decimal(18,3),",
+				"          UnitPrice as decimal(18,2),",
+				"          RecommendedRetailPrice as decimal(18,2),",
+				"          TypicalWeightPerUnit as decimal(18,3),",
+				"          MarketingComments as string,",
+				"          InternalComments as string,",
+				"          Photo as binary,",
+				"          CustomFields as string,",
+				"          Tags as string,",
+				"          SearchDetails as string,",
+				"          LastEditedBy as integer,",
+				"          ValidFrom as timestamp,",
+				"          ValidTo as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> StockItems",
+				"source(output(",
+				"          StockItemID as integer,",
+				"          StockItemName as string,",
+				"          SupplierID as integer,",
+				"          ColorID as integer,",
+				"          UnitPackageID as integer,",
+				"          OuterPackageID as integer,",
+				"          Brand as string,",
+				"          Size as string,",
+				"          LeadTimeDays as integer,",
+				"          QuantityPerOuter as integer,",
+				"          IsChillerStock as boolean,",
+				"          Barcode as string,",
+				"          TaxRate as decimal(18,3),",
+				"          UnitPrice as decimal(18,2),",
+				"          RecommendedRetailPrice as decimal(18,2),",
+				"          TypicalWeightPerUnit as decimal(18,3),",
+				"          MarketingComments as string,",
+				"          InternalComments as string,",
+				"          Photo as binary,",
+				"          CustomFields as string,",
+				"          Tags as string,",
+				"          SearchDetails as string,",
+				"          LastEditedBy as integer,",
+				"          ValidFrom as timestamp,",
+				"          ValidTo as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> StockItemsArchive",
+				"source(output(",
+				"          PackageTypeID as integer,",
+				"          PackageTypeName as string,",
+				"          LastEditedBy as integer,",
+				"          ValidFrom as timestamp,",
+				"          ValidTo as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> PackageTypes",
+				"source(output(",
+				"          ColorID as integer,",
+				"          ColorName as string,",
+				"          LastEditedBy as integer,",
+				"          ValidFrom as timestamp,",
+				"          ValidTo as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> Colors",
+				"StockItemsCutoff, StockItemsArchiveCutoff union(byName: true)~> StockItemsAll",
+				"StockItems filter(ValidFrom > $LastCutoff && ValidFrom <= $NewCutoff) ~> StockItemsCutoff",
+				"StockItemsArchive filter(ValidFrom > $LastCutoff && ValidFrom <= $NewCutoff) ~> StockItemsArchiveCutoff",
+				"PackageTypes select(mapColumn(",
+				"          PackageTypeID,",
+				"          PackageTypeName,",
+				"          LastEditedBy,",
+				"          ValidFrom,",
+				"          ValidTo",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> bpt",
+				"PackageTypes select(mapColumn(",
+				"          PackageTypeID,",
+				"          PackageTypeName,",
+				"          LastEditedBy,",
+				"          ValidFrom,",
+				"          ValidTo",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> spt",
+				"StockItemsAll, spt join(UnitPackageID == PackageTypeID,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> JoinUnitPackageType",
+				"JoinUnitPackageType, bpt join(OuterPackageID == bpt@PackageTypeID,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> JoinOuterPackageType",
+				"JoinOuterPackageType, Colors join(StockItemsAll@ColorID == Colors@ColorID,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> JoinColors",
+				"JoinColors select(mapColumn(",
+				"          WWIStockItemID = StockItemID,",
+				"          StockItem = StockItemName,",
+				"          Color = ColorName,",
+				"          SellingPackage = spt@PackageTypeName,",
+				"          BuyingPackage = bpt@PackageTypeName,",
+				"          Brand,",
+				"          Size,",
+				"          LeadTimeDays,",
+				"          QuantityPerOuter,",
+				"          IsChillerStock,",
+				"          Barcode,",
+				"          TaxRate,",
+				"          UnitPrice,",
+				"          RecommendedRetailPrice,",
+				"          TypicalWeightPerUnit,",
+				"          Photo,",
+				"          ValidFrom = StockItemsAll@ValidFrom,",
+				"          ValidTo = StockItemsAll@ValidTo",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> RenameNeededColumnsOnly",
+				"RenameNeededColumnsOnly window(over(WWIStockItemID),",
+				"     asc(ValidFrom, true),",
+				"     ValidTo = lead(ValidFrom, 1, $EndOfTime)) ~> UpdateValidToField",
+				"UpdateValidToField derive(LoadDateTime = $NewCutoff) ~> AddLineageKey",
+				"AddLineageKey sort(asc(ValidFrom, true)) ~> SortByValidFrom",
+				"SortByValidFrom keyGenerate(output(StockItemKey as long),",
+				"     startAt: 1L,",
+				"     stepValue: 1L) ~> AddStockItemKey",
+				"AddStockItemKey select(mapColumn(",
+				"          StockItemKey,",
+				"          WWIStockItemID,",
+				"          StockItem,",
+				"          Color,",
+				"          SellingPackage,",
+				"          BuyingPackage,",
+				"          Brand,",
+				"          Size,",
+				"          LeadTimeDays,",
+				"          QuantityPerOuter,",
+				"          IsChillerStock,",
+				"          Barcode,",
+				"          TaxRate,",
+				"          UnitPrice,",
+				"          RecommendedRetailPrice,",
+				"          TypicalWeightPerUnit,",
+				"          Photo,",
+				"          ValidFrom,",
+				"          ValidTo,",
+				"          LineageKey = LoadDateTime",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> ChangeColumnsOrder",
+				"ChangeColumnsOrder filter(StockItemKey == 1) ~> ExtrcatOneRow",
+				"ChangeColumnsOrder, DefaultRow union(byName: true)~> AddDefaultRow",
+				"ExtrcatOneRow derive(StockItemKey = 0,",
+				"          WWIStockItemID = 0,",
+				"          StockItem = 'Unknown',",
+				"          Color = 'N/A',",
+				"          SellingPackage = 'N/A',",
+				"          BuyingPackage = 'N/A',",
+				"          Brand = 'N/A',",
+				"          Size = 'N/A',",
+				"          LeadTimeDays = 0,",
+				"          QuantityPerOuter = 0,",
+				"          IsChillerStock = false(),",
+				"          Barcode = 'N/A',",
+				"          TaxRate = 0.000,",
+				"          UnitPrice = 0.00,",
+				"          RecommendedRetailPrice = 0.00,",
+				"          TypicalWeightPerUnit = 0.000,",
+				"          ValidFrom = toTimestamp('2013-01-01T00:00:00.0000000','yyyy-MM-dd\\'T\\'HH:mm:ss.SSS'),",
+				"          ValidTo = $EndOfTime) ~> DefaultRow",
+				"AddDefaultRow sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          CityID as integer,",
+				"          CityName as string,",
+				"          StateProvinceID as integer,",
+				"          Location as binary,",
+				"          LatestRecordedPopulation as long,",
+				"          LastEditedBy as integer,",
+				"          ValidFrom as timestamp,",
+				"          ValidTo as timestamp",
+				"     ),",
+				"     format: 'parquet',",
+				"     partitionFileNames:['Dimension_StockItem.parquet'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> LoadDimensionStickItem"
+			]
+		}
+	}
+}

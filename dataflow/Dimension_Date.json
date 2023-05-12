@@ -1,0 +1,176 @@
+{
+	"name": "Dimension_Date",
+	"properties": {
+		"folder": {
+			"name": "Data Warehouse Full Load"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Dim_Date",
+						"type": "DatasetReference"
+					},
+					"name": "Date"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Dimension_Date",
+						"type": "DatasetReference"
+					},
+					"name": "LoadDimensionDate"
+				}
+			],
+			"transformations": [
+				{
+					"name": "CalculateColumns",
+					"flowlet": {
+						"referenceName": "TimeFlowlet",
+						"type": "DataFlowReference"
+					}
+				},
+				{
+					"name": "DatesOnlyToTheEndOf2023"
+				},
+				{
+					"name": "Dates2017And2020"
+				},
+				{
+					"name": "Dates2013And2016"
+				},
+				{
+					"name": "Dates2021And2023"
+				},
+				{
+					"name": "UnionOriginalDatesTo2020"
+				},
+				{
+					"name": "AddDaysToOriginalDates2"
+				},
+				{
+					"name": "UnionDatesTo2023"
+				},
+				{
+					"name": "AddDaysToOriginalDates"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     DateCounter as date (addMonths(lastDayOfMonth(currentDate()),12))",
+				"}",
+				"source(output(",
+				"          Date as date,",
+				"          {Day Number} as integer,",
+				"          Day as string,",
+				"          Month as string,",
+				"          {Short Month} as string,",
+				"          {Calendar Month Number} as integer,",
+				"          {Calendar Month Label} as string,",
+				"          {Calendar Year} as integer,",
+				"          {Calendar Year Label} as string,",
+				"          {Fiscal Month Number} as integer,",
+				"          {Fiscal Month Label} as string,",
+				"          {Fiscal Year} as integer,",
+				"          {Fiscal Year Label} as string,",
+				"          {ISO Week Number} as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> Date",
+				"DatesOnlyToTheEndOf2023 compose(mapColumn(",
+				"          DateColumn = Date",
+				"     ),",
+				"     composition: 'TimeFlowlet') ~> CalculateColumns@(output)",
+				"UnionDatesTo2023 filter(Date <= addMonths(currentDate(), 12)) ~> DatesOnlyToTheEndOf2023",
+				"Date select(mapColumn(",
+				"          Date,",
+				"          {Day Number},",
+				"          Day,",
+				"          Month,",
+				"          {Short Month},",
+				"          {Calendar Month Number},",
+				"          {Calendar Month Label},",
+				"          {Calendar Year},",
+				"          {Calendar Year Label},",
+				"          {Fiscal Month Number},",
+				"          {Fiscal Month Label},",
+				"          {Fiscal Year},",
+				"          {Fiscal Year Label},",
+				"          {ISO Week Number}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> Dates2017And2020",
+				"Date select(mapColumn(",
+				"          Date,",
+				"          {Day Number},",
+				"          Day,",
+				"          Month,",
+				"          {Short Month},",
+				"          {Calendar Month Number},",
+				"          {Calendar Month Label},",
+				"          {Calendar Year},",
+				"          {Calendar Year Label},",
+				"          {Fiscal Month Number},",
+				"          {Fiscal Month Label},",
+				"          {Fiscal Year},",
+				"          {Fiscal Year Label},",
+				"          {ISO Week Number}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> Dates2013And2016",
+				"Date select(mapColumn(",
+				"          Date,",
+				"          {Day Number},",
+				"          Day,",
+				"          Month,",
+				"          {Short Month},",
+				"          {Calendar Month Number},",
+				"          {Calendar Month Label},",
+				"          {Calendar Year},",
+				"          {Calendar Year Label},",
+				"          {Fiscal Month Number},",
+				"          {Fiscal Month Label},",
+				"          {Fiscal Year},",
+				"          {Fiscal Year Label},",
+				"          {ISO Week Number}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> Dates2021And2023",
+				"Dates2013And2016, AddDaysToOriginalDates2 union(byName: true)~> UnionOriginalDatesTo2020",
+				"Dates2017And2020 derive(Date = addDays(Date, 1461)) ~> AddDaysToOriginalDates2",
+				"UnionOriginalDatesTo2020, AddDaysToOriginalDates union(byName: true)~> UnionDatesTo2023",
+				"Dates2021And2023 derive(Date = addDays(Date, 2922)) ~> AddDaysToOriginalDates",
+				"CalculateColumns@output sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          DateColumn as date,",
+				"          DayNumber as integer,",
+				"          Day as integer,",
+				"          Month as string,",
+				"          ShortMonth as string,",
+				"          CalendarMonthNumber as integer,",
+				"          CalendarMonthLabel as string,",
+				"          CalendarYear as integer,",
+				"          CalendarYearLabel as string,",
+				"          FiscalMonthNumber as integer,",
+				"          FiscalMonthLabel as string,",
+				"          FiscalYear as integer,",
+				"          FiscalYearLabel as string,",
+				"          ISOWeekNumber as integer",
+				"     ),",
+				"     format: 'parquet',",
+				"     partitionFileNames:['Dimension_Date.parquet'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> LoadDimensionDate"
+			]
+		}
+	}
+}

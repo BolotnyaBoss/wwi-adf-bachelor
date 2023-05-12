@@ -1,0 +1,81 @@
+{
+	"name": "Dimension_Date",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ADLS",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Data Warehouse Full Load"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "Dimension_Date.parquet",
+				"folderPath": "data/data-warehouse/date",
+				"fileSystem": "likht"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "DateColumn",
+				"type": "DATE"
+			},
+			{
+				"name": "DayNumber",
+				"type": "INT32"
+			},
+			{
+				"name": "Day",
+				"type": "INT32"
+			},
+			{
+				"name": "Month",
+				"type": "UTF8"
+			},
+			{
+				"name": "ShortMonth",
+				"type": "UTF8"
+			},
+			{
+				"name": "CalendarMonthNumber",
+				"type": "INT32"
+			},
+			{
+				"name": "CalendarMonthLabel",
+				"type": "UTF8"
+			},
+			{
+				"name": "CalendarYear",
+				"type": "INT32"
+			},
+			{
+				"name": "CalendarYearLabel",
+				"type": "UTF8"
+			},
+			{
+				"name": "FiscalMonthNumber",
+				"type": "INT32"
+			},
+			{
+				"name": "FiscalMonthLabel",
+				"type": "UTF8"
+			},
+			{
+				"name": "FiscalYear",
+				"type": "INT32"
+			},
+			{
+				"name": "FiscalYearLabel",
+				"type": "UTF8"
+			},
+			{
+				"name": "ISOWeekNumber",
+				"type": "INT32"
+			}
+		]
+	}
+}

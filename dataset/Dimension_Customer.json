@@ -1,0 +1,70 @@
+{
+	"name": "Dimension_Customer",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ADLS",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Data Warehouse Full Load"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "Dimension_Customer.parquet",
+				"folderPath": "data/data-warehouse/Full-Load",
+				"fileSystem": "likht"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "CustomerKey",
+				"type": "INT64"
+			},
+			{
+				"name": "WWICustomerID",
+				"type": "INT32"
+			},
+			{
+				"name": "Customer",
+				"type": "UTF8"
+			},
+			{
+				"name": "BillToCustomer",
+				"type": "UTF8"
+			},
+			{
+				"name": "Category",
+				"type": "UTF8"
+			},
+			{
+				"name": "BuyingGroup",
+				"type": "UTF8"
+			},
+			{
+				"name": "PrimaryContact",
+				"type": "UTF8"
+			},
+			{
+				"name": "PostalCode",
+				"type": "UTF8"
+			},
+			{
+				"name": "ValidFrom",
+				"type": "INT96"
+			},
+			{
+				"name": "ValidTo",
+				"type": "INT96"
+			},
+			{
+				"name": "LineageKey",
+				"type": "INT96"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

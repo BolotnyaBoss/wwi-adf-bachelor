@@ -1,0 +1,185 @@
+{
+	"name": "Dimension_Employee",
+	"properties": {
+		"folder": {
+			"name": "Data Warehouse Full Load"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "People",
+						"type": "DatasetReference"
+					},
+					"name": "People"
+				},
+				{
+					"dataset": {
+						"referenceName": "People_Archive",
+						"type": "DatasetReference"
+					},
+					"name": "PeopleArchive"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DataWarehouse",
+						"type": "DatasetReference"
+					},
+					"name": "LoadDimensionEmployee"
+				}
+			],
+			"transformations": [
+				{
+					"name": "Employees"
+				},
+				{
+					"name": "PeopleArchiveEmployees"
+				},
+				{
+					"name": "EmployeesAll"
+				},
+				{
+					"name": "UpdateValidToColumn"
+				},
+				{
+					"name": "AddLineageKey"
+				},
+				{
+					"name": "SortByValidFrom"
+				},
+				{
+					"name": "AddEmployeeKey"
+				},
+				{
+					"name": "RenameNeededColumns"
+				},
+				{
+					"name": "ExtractOneRow"
+				},
+				{
+					"name": "DefaltRow"
+				},
+				{
+					"name": "AddDefaultRow"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     EndOfTime as timestamp (toTimestamp('9999-12-31 23:59:59.999','yyyy-MM-dd HH:mm:ss.SSS')),",
+				"     LastCutoff as timestamp (toTimestamp('2012-05-06T12:31:17.0000000','yyyy-MM-dd\\'T\\'HH:mm:ss.SSS')),",
+				"     NewCutoff as timestamp (currentTimestamp())",
+				"}",
+				"source(output(",
+				"          PersonID as integer,",
+				"          FullName as string,",
+				"          PreferredName as string,",
+				"          SearchName as string,",
+				"          IsPermittedToLogon as boolean,",
+				"          LogonName as string,",
+				"          IsExternalLogonProvider as boolean,",
+				"          HashedPassword as binary,",
+				"          IsSystemUser as boolean,",
+				"          IsEmployee as boolean,",
+				"          IsSalesperson as boolean,",
+				"          UserPreferences as string,",
+				"          PhoneNumber as string,",
+				"          FaxNumber as string,",
+				"          EmailAddress as string,",
+				"          Photo as binary,",
+				"          CustomFields as string,",
+				"          OtherLanguages as string,",
+				"          LastEditedBy as integer,",
+				"          ValidFrom as timestamp,",
+				"          ValidTo as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> People",
+				"source(output(",
+				"          PersonID as integer,",
+				"          FullName as string,",
+				"          PreferredName as string,",
+				"          SearchName as string,",
+				"          IsPermittedToLogon as boolean,",
+				"          LogonName as string,",
+				"          IsExternalLogonProvider as boolean,",
+				"          HashedPassword as binary,",
+				"          IsSystemUser as boolean,",
+				"          IsEmployee as boolean,",
+				"          IsSalesperson as boolean,",
+				"          UserPreferences as string,",
+				"          PhoneNumber as string,",
+				"          FaxNumber as string,",
+				"          EmailAddress as string,",
+				"          Photo as binary,",
+				"          CustomFields as string,",
+				"          OtherLanguages as string,",
+				"          LastEditedBy as integer,",
+				"          ValidFrom as timestamp,",
+				"          ValidTo as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> PeopleArchive",
+				"People filter(ValidFrom > $LastCutoff && ValidFrom <= $NewCutoff && IsEmployee == true()) ~> Employees",
+				"PeopleArchive filter(ValidFrom > $LastCutoff && ValidFrom <= $NewCutoff && IsEmployee == true()) ~> PeopleArchiveEmployees",
+				"Employees, PeopleArchiveEmployees union(byName: true)~> EmployeesAll",
+				"EmployeesAll window(over(PersonID),",
+				"     asc(ValidFrom, true),",
+				"     ValidTo = lead(ValidFrom, 1, $EndOfTime)) ~> UpdateValidToColumn",
+				"UpdateValidToColumn derive(LoadDateTime = $NewCutoff) ~> AddLineageKey",
+				"AddLineageKey sort(asc(ValidFrom, true)) ~> SortByValidFrom",
+				"SortByValidFrom keyGenerate(output(EmployeeKey as long),",
+				"     startAt: 1L,",
+				"     stepValue: 1L) ~> AddEmployeeKey",
+				"AddEmployeeKey select(mapColumn(",
+				"          EmployeeKey,",
+				"          WWIEmployeeID = PersonID,",
+				"          Employee = FullName,",
+				"          PreferredName,",
+				"          IsSalesperson,",
+				"          Photo,",
+				"          ValidFrom,",
+				"          ValidTo,",
+				"          LineageKey = LoadDateTime",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> RenameNeededColumns",
+				"RenameNeededColumns filter(EmployeeKey == 1) ~> ExtractOneRow",
+				"ExtractOneRow derive(EmployeeKey = 0,",
+				"          WWIEmployeeID = 0,",
+				"          Employee = 'Unknown',",
+				"          PreferredName = 'N/A',",
+				"          IsSalesperson = false(),",
+				"          ValidFrom = toTimestamp('2013-01-01T00:00:00.0000000','yyyy-MM-dd\\'T\\'HH:mm:ss.SSS'),",
+				"          ValidTo = $EndOfTime) ~> DefaltRow",
+				"RenameNeededColumns, DefaltRow union(byName: true)~> AddDefaultRow",
+				"AddDefaultRow sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          CityID as integer,",
+				"          CityName as string,",
+				"          StateProvinceID as integer,",
+				"          Location as binary,",
+				"          LatestRecordedPopulation as long,",
+				"          LastEditedBy as integer,",
+				"          ValidFrom as timestamp,",
+				"          ValidTo as timestamp",
+				"     ),",
+				"     format: 'parquet',",
+				"     partitionFileNames:['Dimension_Employee.parquet'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> LoadDimensionEmployee"
+			]
+		}
+	}
+}
