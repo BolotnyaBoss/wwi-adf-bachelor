@@ -1,0 +1,41 @@
+{
+	"name": "Load Fact",
+	"properties": {
+		"activities": [
+			{
+				"name": "Sale",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "1.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "Fact_Sale",
+						"type": "DataFlowReference",
+						"parameters": {
+							"LastCutoff": "toTimestamp('2012-05-06T12:31:17.0000000', 'yyyy-MM-dd\\'T\\'HH:mm:ss.SSS')",
+							"NewCutoff": "currentTimestamp()"
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			}
+		],
+		"folder": {
+			"name": "Data Warehouse Full Load"
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-06-16T15:11:01Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

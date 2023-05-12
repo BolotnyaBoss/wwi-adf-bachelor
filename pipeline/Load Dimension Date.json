@@ -1,0 +1,46 @@
+{
+	"name": "Load Dimension Date",
+	"properties": {
+		"activities": [
+			{
+				"name": "Date",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "1.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "Dimension_Date",
+						"type": "DataFlowReference",
+						"parameters": {
+							"DateCounter": "addMonths(lastDayOfMonth(currentDate()),12)"
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			}
+		],
+		"variables": {
+			"dates": {
+				"type": "Array",
+				"defaultValue": []
+			}
+		},
+		"folder": {
+			"name": "Data Warehouse Full Load"
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-06-08T12:37:38Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
