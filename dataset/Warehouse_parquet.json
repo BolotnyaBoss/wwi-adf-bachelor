@@ -1,0 +1,58 @@
+{
+	"name": "Warehouse_parquet",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ADLS",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Ingestion Full Load"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@{item()}.parquet",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "data/@{pipeline().parameters.Schema_Name}/@{item()}",
+					"type": "Expression"
+				},
+				"fileSystem": "likht"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "ColdRoomTemperatureID",
+				"type": "INT64"
+			},
+			{
+				"name": "ColdRoomSensorNumber",
+				"type": "INT32"
+			},
+			{
+				"name": "RecordedWhen",
+				"type": "INT96"
+			},
+			{
+				"name": "Temperature",
+				"type": "DECIMAL",
+				"precision": 10,
+				"scale": 2
+			},
+			{
+				"name": "ValidFrom",
+				"type": "INT96"
+			},
+			{
+				"name": "ValidTo",
+				"type": "INT96"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,52 @@
+{
+	"name": "Sales_parquet",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ADLS",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Ingestion Full Load"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@{item()}.parquet",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "data/raw/microsoft-wwi-adf/@{pipeline().parameters.Schema_Name}/@{item()}",
+					"type": "Expression"
+				},
+				"fileSystem": "likht"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "BuyingGroupID",
+				"type": "INT32"
+			},
+			{
+				"name": "BuyingGroupName",
+				"type": "UTF8"
+			},
+			{
+				"name": "LastEditedBy",
+				"type": "INT32"
+			},
+			{
+				"name": "ValidFrom",
+				"type": "INT96"
+			},
+			{
+				"name": "ValidTo",
+				"type": "INT96"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

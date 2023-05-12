@@ -1,0 +1,191 @@
+{
+	"name": "Ingestion Full Load",
+	"properties": {
+		"activities": [
+			{
+				"name": "Load Application",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Application Ingestion Full Load",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": false,
+					"parameters": {
+						"Table_Name": {
+							"value": "@pipeline().parameters.ApplicationTables",
+							"type": "Expression"
+						},
+						"Schema_Name": {
+							"value": "@pipeline().parameters.ApplicationSchema",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Load Purchasing",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Purchasing Ingestion Full Load",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": false,
+					"parameters": {
+						"Table_Name": {
+							"value": "@pipeline().parameters.PurchasingTables",
+							"type": "Expression"
+						},
+						"Schema_Name": {
+							"value": "@pipeline().parameters.PurchasingSchema",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Load Sales",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Sales Ingestion Full Load",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": false,
+					"parameters": {
+						"Table_Name": {
+							"value": "@pipeline().parameters.SalesTables",
+							"type": "Expression"
+						},
+						"Schema_Name": {
+							"value": "@pipeline().parameters.SalesSchema",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Load Warehouse",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Warehouse Ingestion Full Load",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": false,
+					"parameters": {
+						"Table_Name": {
+							"value": "@pipeline().parameters.WarehouseTables",
+							"type": "Expression"
+						},
+						"Schema_Name": {
+							"value": "@pipeline().parameters.WarehouseSchema",
+							"type": "Expression"
+						}
+					}
+				}
+			}
+		],
+		"parameters": {
+			"ApplicationTables": {
+				"type": "array",
+				"defaultValue": [
+					"Cities",
+					"Cities_Archive",
+					"Countries",
+					"Countries_Archive",
+					"DeliveryMethods",
+					"DeliveryMethods_Archive",
+					"PaymentMethods",
+					"PaymentMethods_Archive",
+					"People",
+					"People_Archive",
+					"StateProvinces",
+					"StateProvinces_Archive",
+					"SystemParameters",
+					"TransactionTypes",
+					"TransactionTypes_Archive"
+				]
+			},
+			"PurchasingTables": {
+				"type": "array",
+				"defaultValue": [
+					"PurchaseOrderLines",
+					"PurchaseOrders",
+					"SupplierCategories",
+					"SupplierCategories_Archive",
+					"Suppliers",
+					"Suppliers_Archive",
+					"SupplierTransactions"
+				]
+			},
+			"SalesTables": {
+				"type": "array",
+				"defaultValue": [
+					"BuyingGroups",
+					"BuyingGroups_Archive",
+					"CustomerCategories",
+					"CustomerCategories_Archive",
+					"Customers",
+					"Customers_Archive",
+					"CustomerTransactions",
+					"InvoiceLines",
+					"Invoices",
+					"OrderLines",
+					"Orders",
+					"SpecialDeals"
+				]
+			},
+			"WarehouseTables": {
+				"type": "array",
+				"defaultValue": [
+					"ColdRoomTemperatures",
+					"ColdRoomTemperatures_Archive",
+					"Colors",
+					"Colors_Archive",
+					"PackageTypes",
+					"PackageTypes_Archive",
+					"StockGroups",
+					"StockGroups_Archive",
+					"StockItemHoldings",
+					"StockItems",
+					"StockItems_Archive",
+					"StockItemStockGroups",
+					"StockItemTransactions",
+					"VehicleTemperatures"
+				]
+			},
+			"ApplicationSchema": {
+				"type": "string",
+				"defaultValue": "Application"
+			},
+			"PurchasingSchema": {
+				"type": "string",
+				"defaultValue": "Purchasing"
+			},
+			"SalesSchema": {
+				"type": "string",
+				"defaultValue": "Sales"
+			},
+			"WarehouseSchema": {
+				"type": "string",
+				"defaultValue": "Warehouse"
+			}
+		},
+		"folder": {
+			"name": "Ingestion Full Load"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-05-12T08:45:55Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

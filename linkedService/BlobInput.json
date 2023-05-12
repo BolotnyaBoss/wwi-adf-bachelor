@@ -1,0 +1,21 @@
+{
+	"name": "BlobInput",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"type": "AzureBlobStorage",
+		"typeProperties": {
+			"connectionString": {
+				"type": "SecureString",
+				"value": "**********"
+			},
+			"servicePrincipalId": "",
+			"servicePrincipalKey": {
+				"type": "SecureString",
+				"value": "**********"
+			},
+			"tenant": "",
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRBVEFGQUNUT1JZQERGMzQ4QzBCLTQ4MDctNDAyMS1CMjNCLTUzNTdFMkVFNzQ2N18yYzEzYTE0NC05MDAxLTRkOWEtYjM0MS1mNjMzYWQ5NmI1ZjgiDQp9"
+		},
+		"annotations": []
+	}
+}

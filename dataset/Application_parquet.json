@@ -1,0 +1,68 @@
+{
+	"name": "Application_parquet",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ADLS",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Ingestion Full Load"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@{item()}.parquet",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "data/@{pipeline().parameters.Schema_Name}/@{item()}",
+					"type": "Expression"
+				},
+				"fileSystem": "likht"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "CityID",
+				"type": "INT32"
+			},
+			{
+				"name": "CityName",
+				"type": "UTF8"
+			},
+			{
+				"name": "StateProvinceID",
+				"type": "INT32"
+			},
+			{
+				"name": "LocationLat",
+				"type": "DOUBLE"
+			},
+			{
+				"name": "LocationLong",
+				"type": "DOUBLE"
+			},
+			{
+				"name": "LatestRecordedPopulation",
+				"type": "INT64"
+			},
+			{
+				"name": "LastEditedBy",
+				"type": "INT32"
+			},
+			{
+				"name": "ValidFrom",
+				"type": "INT96"
+			},
+			{
+				"name": "ValidTo",
+				"type": "INT96"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

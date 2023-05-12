@@ -1,0 +1,82 @@
+{
+	"name": "Purchasing_parquet",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ADLS",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Ingestion Full Load"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@{item()}.parquet",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "data/@{pipeline().parameters.Schema_Name}/@{item()}",
+					"type": "Expression"
+				},
+				"fileSystem": "likht"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "PurchaseOrderLineID",
+				"type": "INT32"
+			},
+			{
+				"name": "PurchaseOrderID",
+				"type": "INT32"
+			},
+			{
+				"name": "StockItemID",
+				"type": "INT32"
+			},
+			{
+				"name": "OrderedOuters",
+				"type": "INT32"
+			},
+			{
+				"name": "Description",
+				"type": "UTF8"
+			},
+			{
+				"name": "ReceivedOuters",
+				"type": "INT32"
+			},
+			{
+				"name": "PackageTypeID",
+				"type": "INT32"
+			},
+			{
+				"name": "ExpectedUnitPricePerOuter",
+				"type": "DECIMAL",
+				"precision": 18,
+				"scale": 2
+			},
+			{
+				"name": "LastReceiptDate",
+				"type": "DATE"
+			},
+			{
+				"name": "IsOrderLineFinalized",
+				"type": "BOOLEAN"
+			},
+			{
+				"name": "LastEditedBy",
+				"type": "INT32"
+			},
+			{
+				"name": "LastEditedWhen",
+				"type": "INT96"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

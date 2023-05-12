@@ -1,0 +1,13 @@
+{
+	"name": "WWI_Standard",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "WWIInput",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
