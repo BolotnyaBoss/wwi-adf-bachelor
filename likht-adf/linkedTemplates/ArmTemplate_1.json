@@ -872,7 +872,7 @@
 							"type": "Expression"
 						},
 						"folderPath": {
-							"value": "data/raw/microsoft-wwi-adf/@{pipeline().parameters.Schema_Name}/@{item()}",
+							"value": "data/@{pipeline().parameters.Schema_Name}/@{item()}",
 							"type": "Expression"
 						},
 						"fileSystem": "likht"
