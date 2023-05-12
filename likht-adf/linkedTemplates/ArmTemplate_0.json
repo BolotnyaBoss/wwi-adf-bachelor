@@ -1,0 +1,1509 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "likht-adf"
+		},
+		"ADLS_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'ADLS'"
+		},
+		"BlobInput_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'BlobInput'"
+		},
+		"WWIInput_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'WWIInput'"
+		},
+		"ADLS_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://likhtsa.dfs.core.windows.net/"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/ADLS')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('ADLS_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('ADLS_accountKey')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BlobInput')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('BlobInput_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/WWIInput')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"connectionString": "[parameters('WWIInput_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Application_parquet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Ingestion Full Load"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@{item()}.parquet",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "data/@{pipeline().parameters.Schema_Name}/@{item()}",
+							"type": "Expression"
+						},
+						"fileSystem": "likht"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "CityID",
+						"type": "INT32"
+					},
+					{
+						"name": "CityName",
+						"type": "UTF8"
+					},
+					{
+						"name": "StateProvinceID",
+						"type": "INT32"
+					},
+					{
+						"name": "LocationLat",
+						"type": "DOUBLE"
+					},
+					{
+						"name": "LocationLong",
+						"type": "DOUBLE"
+					},
+					{
+						"name": "LatestRecordedPopulation",
+						"type": "INT64"
+					},
+					{
+						"name": "LastEditedBy",
+						"type": "INT32"
+					},
+					{
+						"name": "ValidFrom",
+						"type": "INT96"
+					},
+					{
+						"name": "ValidTo",
+						"type": "INT96"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADLS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BuyingGroups')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Data Warehouse Full Load"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "BuyingGroups.parquet",
+						"folderPath": "data/Sales/BuyingGroups",
+						"fileSystem": "likht"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "BuyingGroupID",
+						"type": "INT32"
+					},
+					{
+						"name": "BuyingGroupName",
+						"type": "UTF8"
+					},
+					{
+						"name": "LastEditedBy",
+						"type": "INT32"
+					},
+					{
+						"name": "ValidFrom",
+						"type": "INT96"
+					},
+					{
+						"name": "ValidTo",
+						"type": "INT96"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADLS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BuyingGroups_Archive')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Data Warehouse Full Load"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "BuyingGroups_Archive.parquet",
+						"folderPath": "data/Sales/BuyingGroups_Archive",
+						"fileSystem": "likht"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "BuyingGroupID",
+						"type": "INT32"
+					},
+					{
+						"name": "BuyingGroupName",
+						"type": "UTF8"
+					},
+					{
+						"name": "LastEditedBy",
+						"type": "INT32"
+					},
+					{
+						"name": "ValidFrom",
+						"type": "INT96"
+					},
+					{
+						"name": "ValidTo",
+						"type": "INT96"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADLS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Cities')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Data Warehouse Full Load"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "Cities.parquet",
+						"folderPath": "data/Application/Cities",
+						"fileSystem": "likht"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "CityID",
+						"type": "INT32"
+					},
+					{
+						"name": "CityName",
+						"type": "UTF8"
+					},
+					{
+						"name": "StateProvinceID",
+						"type": "INT32"
+					},
+					{
+						"name": "Location",
+						"type": "UTF8"
+					},
+					{
+						"name": "LatestRecordedPopulation",
+						"type": "INT64"
+					},
+					{
+						"name": "LastEditedBy",
+						"type": "INT32"
+					},
+					{
+						"name": "ValidFrom",
+						"type": "INT96"
+					},
+					{
+						"name": "ValidTo",
+						"type": "INT96"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADLS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Cities_Archive')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Data Warehouse Full Load"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "Cities_Archive.parquet",
+						"folderPath": "data/Application/Cities_Archive",
+						"fileSystem": "likht"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "CityID",
+						"type": "INT32"
+					},
+					{
+						"name": "CityName",
+						"type": "UTF8"
+					},
+					{
+						"name": "StateProvinceID",
+						"type": "INT32"
+					},
+					{
+						"name": "Location",
+						"type": "UTF8"
+					},
+					{
+						"name": "LatestRecordedPopulation",
+						"type": "INT64"
+					},
+					{
+						"name": "LastEditedBy",
+						"type": "INT32"
+					},
+					{
+						"name": "ValidFrom",
+						"type": "INT96"
+					},
+					{
+						"name": "ValidTo",
+						"type": "INT96"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADLS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Colors')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Data Warehouse Full Load"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "Colors.parquet",
+						"folderPath": "data/Warehouse/Colors",
+						"fileSystem": "likht"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "ColorID",
+						"type": "INT32"
+					},
+					{
+						"name": "ColorName",
+						"type": "UTF8"
+					},
+					{
+						"name": "LastEditedBy",
+						"type": "INT32"
+					},
+					{
+						"name": "ValidFrom",
+						"type": "INT96"
+					},
+					{
+						"name": "ValidTo",
+						"type": "INT96"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADLS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Countries')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Data Warehouse Full Load"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "Countries.parquet",
+						"folderPath": "data/Application/Countries",
+						"fileSystem": "likht"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "CountryID",
+						"type": "INT32"
+					},
+					{
+						"name": "CountryName",
+						"type": "UTF8"
+					},
+					{
+						"name": "FormalName",
+						"type": "UTF8"
+					},
+					{
+						"name": "IsoAlpha3Code",
+						"type": "UTF8"
+					},
+					{
+						"name": "IsoNumericCode",
+						"type": "INT32"
+					},
+					{
+						"name": "CountryType",
+						"type": "UTF8"
+					},
+					{
+						"name": "LatestRecordedPopulation",
+						"type": "INT64"
+					},
+					{
+						"name": "Continent",
+						"type": "UTF8"
+					},
+					{
+						"name": "Region",
+						"type": "UTF8"
+					},
+					{
+						"name": "Subregion",
+						"type": "UTF8"
+					},
+					{
+						"name": "Border",
+						"type": "UTF8"
+					},
+					{
+						"name": "LastEditedBy",
+						"type": "INT32"
+					},
+					{
+						"name": "ValidFrom",
+						"type": "INT96"
+					},
+					{
+						"name": "ValidTo",
+						"type": "INT96"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADLS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Countries_Archive')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Data Warehouse Full Load"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "Countries_Archive.parquet",
+						"folderPath": "data/Application/Countries_Archive",
+						"fileSystem": "likht"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "CountryID",
+						"type": "INT32"
+					},
+					{
+						"name": "CountryName",
+						"type": "UTF8"
+					},
+					{
+						"name": "FormalName",
+						"type": "UTF8"
+					},
+					{
+						"name": "IsoAlpha3Code",
+						"type": "UTF8"
+					},
+					{
+						"name": "IsoNumericCode",
+						"type": "INT32"
+					},
+					{
+						"name": "CountryType",
+						"type": "UTF8"
+					},
+					{
+						"name": "LatestRecordedPopulation",
+						"type": "INT64"
+					},
+					{
+						"name": "Continent",
+						"type": "UTF8"
+					},
+					{
+						"name": "Region",
+						"type": "UTF8"
+					},
+					{
+						"name": "Subregion",
+						"type": "UTF8"
+					},
+					{
+						"name": "Border",
+						"type": "UTF8"
+					},
+					{
+						"name": "LastEditedBy",
+						"type": "INT32"
+					},
+					{
+						"name": "ValidFrom",
+						"type": "INT96"
+					},
+					{
+						"name": "ValidTo",
+						"type": "INT96"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADLS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/CustomerCategories')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Data Warehouse Full Load"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "CustomerCategories.parquet",
+						"folderPath": "data/Sales/CustomerCategories",
+						"fileSystem": "likht"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "CustomerCategoryID",
+						"type": "INT32"
+					},
+					{
+						"name": "CustomerCategoryName",
+						"type": "UTF8"
+					},
+					{
+						"name": "LastEditedBy",
+						"type": "INT32"
+					},
+					{
+						"name": "ValidFrom",
+						"type": "INT96"
+					},
+					{
+						"name": "ValidTo",
+						"type": "INT96"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADLS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/CustomerCategories_Archive')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Data Warehouse Full Load"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "CustomerCategories_Archive.parquet",
+						"folderPath": "data/Sales/CustomerCategories_Archive",
+						"fileSystem": "likht"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "CustomerCategoryID",
+						"type": "INT32"
+					},
+					{
+						"name": "CustomerCategoryName",
+						"type": "UTF8"
+					},
+					{
+						"name": "LastEditedBy",
+						"type": "INT32"
+					},
+					{
+						"name": "ValidFrom",
+						"type": "INT96"
+					},
+					{
+						"name": "ValidTo",
+						"type": "INT96"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADLS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Customers')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Data Warehouse Full Load"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "Customers.parquet",
+						"folderPath": "data/Sales/Customers",
+						"fileSystem": "likht"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "CustomerID",
+						"type": "INT32"
+					},
+					{
+						"name": "CustomerName",
+						"type": "UTF8"
+					},
+					{
+						"name": "BillToCustomerID",
+						"type": "INT32"
+					},
+					{
+						"name": "CustomerCategoryID",
+						"type": "INT32"
+					},
+					{
+						"name": "BuyingGroupID",
+						"type": "INT32"
+					},
+					{
+						"name": "PrimaryContactPersonID",
+						"type": "INT32"
+					},
+					{
+						"name": "AlternateContactPersonID",
+						"type": "INT32"
+					},
+					{
+						"name": "DeliveryMethodID",
+						"type": "INT32"
+					},
+					{
+						"name": "DeliveryCityID",
+						"type": "INT32"
+					},
+					{
+						"name": "PostalCityID",
+						"type": "INT32"
+					},
+					{
+						"name": "CreditLimit",
+						"type": "DECIMAL",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "AccountOpenedDate",
+						"type": "DATE"
+					},
+					{
+						"name": "StandardDiscountPercentage",
+						"type": "DECIMAL",
+						"precision": 18,
+						"scale": 3
+					},
+					{
+						"name": "IsStatementSent",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "IsOnCreditHold",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "PaymentDays",
+						"type": "INT32"
+					},
+					{
+						"name": "PhoneNumber",
+						"type": "UTF8"
+					},
+					{
+						"name": "FaxNumber",
+						"type": "UTF8"
+					},
+					{
+						"name": "DeliveryRun",
+						"type": "UTF8"
+					},
+					{
+						"name": "RunPosition",
+						"type": "UTF8"
+					},
+					{
+						"name": "WebsiteURL",
+						"type": "UTF8"
+					},
+					{
+						"name": "DeliveryAddressLine1",
+						"type": "UTF8"
+					},
+					{
+						"name": "DeliveryAddressLine2",
+						"type": "UTF8"
+					},
+					{
+						"name": "DeliveryPostalCode",
+						"type": "UTF8"
+					},
+					{
+						"name": "DeliveryLocation",
+						"type": "UTF8"
+					},
+					{
+						"name": "PostalAddressLine1",
+						"type": "UTF8"
+					},
+					{
+						"name": "PostalAddressLine2",
+						"type": "UTF8"
+					},
+					{
+						"name": "PostalPostalCode",
+						"type": "UTF8"
+					},
+					{
+						"name": "LastEditedBy",
+						"type": "INT32"
+					},
+					{
+						"name": "ValidFrom",
+						"type": "INT96"
+					},
+					{
+						"name": "ValidTo",
+						"type": "INT96"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADLS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Customers_Archive')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Data Warehouse Full Load"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "Customers_Archive.parquet",
+						"folderPath": "data/Sales/Customers_Archive",
+						"fileSystem": "likht"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "CustomerID",
+						"type": "INT32"
+					},
+					{
+						"name": "CustomerName",
+						"type": "UTF8"
+					},
+					{
+						"name": "BillToCustomerID",
+						"type": "INT32"
+					},
+					{
+						"name": "CustomerCategoryID",
+						"type": "INT32"
+					},
+					{
+						"name": "BuyingGroupID",
+						"type": "INT32"
+					},
+					{
+						"name": "PrimaryContactPersonID",
+						"type": "INT32"
+					},
+					{
+						"name": "AlternateContactPersonID",
+						"type": "INT32"
+					},
+					{
+						"name": "DeliveryMethodID",
+						"type": "INT32"
+					},
+					{
+						"name": "DeliveryCityID",
+						"type": "INT32"
+					},
+					{
+						"name": "PostalCityID",
+						"type": "INT32"
+					},
+					{
+						"name": "CreditLimit",
+						"type": "DECIMAL",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "AccountOpenedDate",
+						"type": "DATE"
+					},
+					{
+						"name": "StandardDiscountPercentage",
+						"type": "DECIMAL",
+						"precision": 18,
+						"scale": 3
+					},
+					{
+						"name": "IsStatementSent",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "IsOnCreditHold",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "PaymentDays",
+						"type": "INT32"
+					},
+					{
+						"name": "PhoneNumber",
+						"type": "UTF8"
+					},
+					{
+						"name": "FaxNumber",
+						"type": "UTF8"
+					},
+					{
+						"name": "DeliveryRun",
+						"type": "UTF8"
+					},
+					{
+						"name": "RunPosition",
+						"type": "UTF8"
+					},
+					{
+						"name": "WebsiteURL",
+						"type": "UTF8"
+					},
+					{
+						"name": "DeliveryAddressLine1",
+						"type": "UTF8"
+					},
+					{
+						"name": "DeliveryAddressLine2",
+						"type": "UTF8"
+					},
+					{
+						"name": "DeliveryPostalCode",
+						"type": "UTF8"
+					},
+					{
+						"name": "DeliveryLocation",
+						"type": "UTF8"
+					},
+					{
+						"name": "PostalAddressLine1",
+						"type": "UTF8"
+					},
+					{
+						"name": "PostalAddressLine2",
+						"type": "UTF8"
+					},
+					{
+						"name": "PostalPostalCode",
+						"type": "UTF8"
+					},
+					{
+						"name": "LastEditedBy",
+						"type": "INT32"
+					},
+					{
+						"name": "ValidFrom",
+						"type": "INT96"
+					},
+					{
+						"name": "ValidTo",
+						"type": "INT96"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADLS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/InvoiceLines')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Data Warehouse Full Load"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "InvoiceLines.parquet",
+						"folderPath": "data/Sales/InvoiceLines",
+						"fileSystem": "likht"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "InvoiceLineID",
+						"type": "INT32"
+					},
+					{
+						"name": "InvoiceID",
+						"type": "INT32"
+					},
+					{
+						"name": "StockItemID",
+						"type": "INT32"
+					},
+					{
+						"name": "Description",
+						"type": "UTF8"
+					},
+					{
+						"name": "PackageTypeID",
+						"type": "INT32"
+					},
+					{
+						"name": "Quantity",
+						"type": "INT32"
+					},
+					{
+						"name": "UnitPrice",
+						"type": "DECIMAL",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "TaxRate",
+						"type": "DECIMAL",
+						"precision": 18,
+						"scale": 3
+					},
+					{
+						"name": "TaxAmount",
+						"type": "DECIMAL",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "LineProfit",
+						"type": "DECIMAL",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "ExtendedPrice",
+						"type": "DECIMAL",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "LastEditedBy",
+						"type": "INT32"
+					},
+					{
+						"name": "LastEditedWhen",
+						"type": "INT96"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADLS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Invoices')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Data Warehouse Full Load"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "Invoices.parquet",
+						"folderPath": "data/Sales/Invoices",
+						"fileSystem": "likht"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "InvoiceID",
+						"type": "INT32"
+					},
+					{
+						"name": "CustomerID",
+						"type": "INT32"
+					},
+					{
+						"name": "BillToCustomerID",
+						"type": "INT32"
+					},
+					{
+						"name": "OrderID",
+						"type": "INT32"
+					},
+					{
+						"name": "DeliveryMethodID",
+						"type": "INT32"
+					},
+					{
+						"name": "ContactPersonID",
+						"type": "INT32"
+					},
+					{
+						"name": "AccountsPersonID",
+						"type": "INT32"
+					},
+					{
+						"name": "SalespersonPersonID",
+						"type": "INT32"
+					},
+					{
+						"name": "PackedByPersonID",
+						"type": "INT32"
+					},
+					{
+						"name": "InvoiceDate",
+						"type": "DATE"
+					},
+					{
+						"name": "CustomerPurchaseOrderNumber",
+						"type": "UTF8"
+					},
+					{
+						"name": "IsCreditNote",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "CreditNoteReason",
+						"type": "UTF8"
+					},
+					{
+						"name": "Comments",
+						"type": "UTF8"
+					},
+					{
+						"name": "DeliveryInstructions",
+						"type": "UTF8"
+					},
+					{
+						"name": "InternalComments",
+						"type": "UTF8"
+					},
+					{
+						"name": "TotalDryItems",
+						"type": "INT32"
+					},
+					{
+						"name": "TotalChillerItems",
+						"type": "INT32"
+					},
+					{
+						"name": "DeliveryRun",
+						"type": "UTF8"
+					},
+					{
+						"name": "RunPosition",
+						"type": "UTF8"
+					},
+					{
+						"name": "ReturnedDeliveryData",
+						"type": "UTF8"
+					},
+					{
+						"name": "ConfirmedDeliveryTime",
+						"type": "INT96"
+					},
+					{
+						"name": "ConfirmedReceivedBy",
+						"type": "UTF8"
+					},
+					{
+						"name": "LastEditedBy",
+						"type": "INT32"
+					},
+					{
+						"name": "LastEditedWhen",
+						"type": "INT96"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADLS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PackageTypes')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Data Warehouse Full Load"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "PackageTypes.parquet",
+						"folderPath": "data/Warehouse/PackageTypes",
+						"fileSystem": "likht"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "PackageTypeID",
+						"type": "INT32"
+					},
+					{
+						"name": "PackageTypeName",
+						"type": "UTF8"
+					},
+					{
+						"name": "LastEditedBy",
+						"type": "INT32"
+					},
+					{
+						"name": "ValidFrom",
+						"type": "INT96"
+					},
+					{
+						"name": "ValidTo",
+						"type": "INT96"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADLS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/People')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Data Warehouse Full Load"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "People.parquet",
+						"folderPath": "data/Application/People",
+						"fileSystem": "likht"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "PersonID",
+						"type": "INT32"
+					},
+					{
+						"name": "FullName",
+						"type": "UTF8"
+					},
+					{
+						"name": "PreferredName",
+						"type": "UTF8"
+					},
+					{
+						"name": "SearchName",
+						"type": "UTF8"
+					},
+					{
+						"name": "IsPermittedToLogon",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "LogonName",
+						"type": "UTF8"
+					},
+					{
+						"name": "IsExternalLogonProvider",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "HashedPassword",
+						"type": "BINARY"
+					},
+					{
+						"name": "IsSystemUser",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "IsEmployee",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "IsSalesperson",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "UserPreferences",
+						"type": "UTF8"
+					},
+					{
+						"name": "PhoneNumber",
+						"type": "UTF8"
+					},
+					{
+						"name": "FaxNumber",
+						"type": "UTF8"
+					},
+					{
+						"name": "EmailAddress",
+						"type": "UTF8"
+					},
+					{
+						"name": "Photo",
+						"type": "BINARY"
+					},
+					{
+						"name": "CustomFields",
+						"type": "UTF8"
+					},
+					{
+						"name": "OtherLanguages",
+						"type": "UTF8"
+					},
+					{
+						"name": "LastEditedBy",
+						"type": "INT32"
+					},
+					{
+						"name": "ValidFrom",
+						"type": "INT96"
+					},
+					{
+						"name": "ValidTo",
+						"type": "INT96"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADLS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/People_Archive')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Data Warehouse Full Load"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "People_Archive.parquet",
+						"folderPath": "data/Application/People_Archive",
+						"fileSystem": "likht"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "PersonID",
+						"type": "INT32"
+					},
+					{
+						"name": "FullName",
+						"type": "UTF8"
+					},
+					{
+						"name": "PreferredName",
+						"type": "UTF8"
+					},
+					{
+						"name": "SearchName",
+						"type": "UTF8"
+					},
+					{
+						"name": "IsPermittedToLogon",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "LogonName",
+						"type": "UTF8"
+					},
+					{
+						"name": "IsExternalLogonProvider",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "HashedPassword",
+						"type": "BINARY"
+					},
+					{
+						"name": "IsSystemUser",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "IsEmployee",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "IsSalesperson",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "UserPreferences",
+						"type": "UTF8"
+					},
+					{
+						"name": "PhoneNumber",
+						"type": "UTF8"
+					},
+					{
+						"name": "FaxNumber",
+						"type": "UTF8"
+					},
+					{
+						"name": "EmailAddress",
+						"type": "UTF8"
+					},
+					{
+						"name": "Photo",
+						"type": "BINARY"
+					},
+					{
+						"name": "CustomFields",
+						"type": "UTF8"
+					},
+					{
+						"name": "OtherLanguages",
+						"type": "UTF8"
+					},
+					{
+						"name": "LastEditedBy",
+						"type": "INT32"
+					},
+					{
+						"name": "ValidFrom",
+						"type": "INT96"
+					},
+					{
+						"name": "ValidTo",
+						"type": "INT96"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ADLS')]"
+			]
+		}
+	]
+}
