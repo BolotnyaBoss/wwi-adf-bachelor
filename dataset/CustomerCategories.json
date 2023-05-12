@@ -1,0 +1,46 @@
+{
+	"name": "CustomerCategories",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ADLS",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Data Warehouse Full Load"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "CustomerCategories.parquet",
+				"folderPath": "data/Sales/CustomerCategories",
+				"fileSystem": "likht"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "CustomerCategoryID",
+				"type": "INT32"
+			},
+			{
+				"name": "CustomerCategoryName",
+				"type": "UTF8"
+			},
+			{
+				"name": "LastEditedBy",
+				"type": "INT32"
+			},
+			{
+				"name": "ValidFrom",
+				"type": "INT96"
+			},
+			{
+				"name": "ValidTo",
+				"type": "INT96"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,58 @@
+{
+	"name": "Cities_Archive",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ADLS",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Data Warehouse Full Load"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "Cities_Archive.parquet",
+				"folderPath": "data/Application/Cities_Archive",
+				"fileSystem": "likht"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "CityID",
+				"type": "INT32"
+			},
+			{
+				"name": "CityName",
+				"type": "UTF8"
+			},
+			{
+				"name": "StateProvinceID",
+				"type": "INT32"
+			},
+			{
+				"name": "Location",
+				"type": "UTF8"
+			},
+			{
+				"name": "LatestRecordedPopulation",
+				"type": "INT64"
+			},
+			{
+				"name": "LastEditedBy",
+				"type": "INT32"
+			},
+			{
+				"name": "ValidFrom",
+				"type": "INT96"
+			},
+			{
+				"name": "ValidTo",
+				"type": "INT96"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

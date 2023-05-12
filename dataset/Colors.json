@@ -1,0 +1,46 @@
+{
+	"name": "Colors",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ADLS",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Data Warehouse Full Load"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "Colors.parquet",
+				"folderPath": "data/Warehouse/Colors",
+				"fileSystem": "likht"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "ColorID",
+				"type": "INT32"
+			},
+			{
+				"name": "ColorName",
+				"type": "UTF8"
+			},
+			{
+				"name": "LastEditedBy",
+				"type": "INT32"
+			},
+			{
+				"name": "ValidFrom",
+				"type": "INT96"
+			},
+			{
+				"name": "ValidTo",
+				"type": "INT96"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

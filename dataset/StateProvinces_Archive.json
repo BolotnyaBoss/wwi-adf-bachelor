@@ -1,0 +1,66 @@
+{
+	"name": "StateProvinces_Archive",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ADLS",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Data Warehouse Full Load"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "StateProvinces_Archive.parquet",
+				"folderPath": "data/Application/StateProvinces_Archive",
+				"fileSystem": "likht"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "StateProvinceID",
+				"type": "INT32"
+			},
+			{
+				"name": "StateProvinceCode",
+				"type": "UTF8"
+			},
+			{
+				"name": "StateProvinceName",
+				"type": "UTF8"
+			},
+			{
+				"name": "CountryID",
+				"type": "INT32"
+			},
+			{
+				"name": "SalesTerritory",
+				"type": "UTF8"
+			},
+			{
+				"name": "Border",
+				"type": "UTF8"
+			},
+			{
+				"name": "LatestRecordedPopulation",
+				"type": "INT64"
+			},
+			{
+				"name": "LastEditedBy",
+				"type": "INT32"
+			},
+			{
+				"name": "ValidFrom",
+				"type": "INT96"
+			},
+			{
+				"name": "ValidTo",
+				"type": "INT96"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

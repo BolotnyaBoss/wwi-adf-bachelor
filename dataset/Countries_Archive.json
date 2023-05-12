@@ -1,0 +1,82 @@
+{
+	"name": "Countries_Archive",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ADLS",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Data Warehouse Full Load"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "Countries_Archive.parquet",
+				"folderPath": "data/Application/Countries_Archive",
+				"fileSystem": "likht"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "CountryID",
+				"type": "INT32"
+			},
+			{
+				"name": "CountryName",
+				"type": "UTF8"
+			},
+			{
+				"name": "FormalName",
+				"type": "UTF8"
+			},
+			{
+				"name": "IsoAlpha3Code",
+				"type": "UTF8"
+			},
+			{
+				"name": "IsoNumericCode",
+				"type": "INT32"
+			},
+			{
+				"name": "CountryType",
+				"type": "UTF8"
+			},
+			{
+				"name": "LatestRecordedPopulation",
+				"type": "INT64"
+			},
+			{
+				"name": "Continent",
+				"type": "UTF8"
+			},
+			{
+				"name": "Region",
+				"type": "UTF8"
+			},
+			{
+				"name": "Subregion",
+				"type": "UTF8"
+			},
+			{
+				"name": "Border",
+				"type": "UTF8"
+			},
+			{
+				"name": "LastEditedBy",
+				"type": "INT32"
+			},
+			{
+				"name": "ValidFrom",
+				"type": "INT96"
+			},
+			{
+				"name": "ValidTo",
+				"type": "INT96"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
