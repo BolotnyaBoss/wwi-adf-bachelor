@@ -13,6 +13,760 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/Dimension_Date')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Data Warehouse Full Load"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "Dimension_Date.parquet",
+						"folderPath": "data/data-warehouse/date",
+						"fileSystem": "likht"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "DateColumn",
+						"type": "DATE"
+					},
+					{
+						"name": "DayNumber",
+						"type": "INT32"
+					},
+					{
+						"name": "Day",
+						"type": "INT32"
+					},
+					{
+						"name": "Month",
+						"type": "UTF8"
+					},
+					{
+						"name": "ShortMonth",
+						"type": "UTF8"
+					},
+					{
+						"name": "CalendarMonthNumber",
+						"type": "INT32"
+					},
+					{
+						"name": "CalendarMonthLabel",
+						"type": "UTF8"
+					},
+					{
+						"name": "CalendarYear",
+						"type": "INT32"
+					},
+					{
+						"name": "CalendarYearLabel",
+						"type": "UTF8"
+					},
+					{
+						"name": "FiscalMonthNumber",
+						"type": "INT32"
+					},
+					{
+						"name": "FiscalMonthLabel",
+						"type": "UTF8"
+					},
+					{
+						"name": "FiscalYear",
+						"type": "INT32"
+					},
+					{
+						"name": "FiscalYearLabel",
+						"type": "UTF8"
+					},
+					{
+						"name": "ISOWeekNumber",
+						"type": "INT32"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Dimension_Employee')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Data Warehouse Full Load"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "Dimension_Employee.parquet",
+						"folderPath": "data/data-warehouse/Full-Load",
+						"fileSystem": "likht"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "EmployeeKey",
+						"type": "INT64"
+					},
+					{
+						"name": "WWIEmployeeID",
+						"type": "INT32"
+					},
+					{
+						"name": "Employee",
+						"type": "UTF8"
+					},
+					{
+						"name": "PreferredName",
+						"type": "UTF8"
+					},
+					{
+						"name": "IsSalesperson",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "Photo",
+						"type": "BINARY"
+					},
+					{
+						"name": "ValidFrom",
+						"type": "INT96"
+					},
+					{
+						"name": "ValidTo",
+						"type": "INT96"
+					},
+					{
+						"name": "LineageKey",
+						"type": "INT96"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Dimension_StockItem')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Data Warehouse Full Load"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "Dimension_StockItem.parquet",
+						"folderPath": "data/data-warehouse/Full-Load",
+						"fileSystem": "likht"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "StockItemKey",
+						"type": "INT64"
+					},
+					{
+						"name": "WWIStockItemID",
+						"type": "INT32"
+					},
+					{
+						"name": "StockItem",
+						"type": "UTF8"
+					},
+					{
+						"name": "Color",
+						"type": "UTF8"
+					},
+					{
+						"name": "SellingPackage",
+						"type": "UTF8"
+					},
+					{
+						"name": "BuyingPackage",
+						"type": "UTF8"
+					},
+					{
+						"name": "Brand",
+						"type": "UTF8"
+					},
+					{
+						"name": "Size",
+						"type": "UTF8"
+					},
+					{
+						"name": "LeadTimeDays",
+						"type": "INT32"
+					},
+					{
+						"name": "QuantityPerOuter",
+						"type": "INT32"
+					},
+					{
+						"name": "IsChillerStock",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "Barcode",
+						"type": "UTF8"
+					},
+					{
+						"name": "TaxRate",
+						"type": "DECIMAL",
+						"precision": 18,
+						"scale": 3
+					},
+					{
+						"name": "UnitPrice",
+						"type": "DECIMAL",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "RecommendedRetailPrice",
+						"type": "DECIMAL",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "TypicalWeightPerUnit",
+						"type": "DECIMAL",
+						"precision": 18,
+						"scale": 3
+					},
+					{
+						"name": "Photo",
+						"type": "BINARY"
+					},
+					{
+						"name": "ValidFrom",
+						"type": "INT96"
+					},
+					{
+						"name": "ValidTo",
+						"type": "INT96"
+					},
+					{
+						"name": "LineageKey",
+						"type": "INT96"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/InvoiceLines')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Data Warehouse Full Load"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "InvoiceLines.parquet",
+						"folderPath": "data/Sales/InvoiceLines",
+						"fileSystem": "likht"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "InvoiceLineID",
+						"type": "INT32"
+					},
+					{
+						"name": "InvoiceID",
+						"type": "INT32"
+					},
+					{
+						"name": "StockItemID",
+						"type": "INT32"
+					},
+					{
+						"name": "Description",
+						"type": "UTF8"
+					},
+					{
+						"name": "PackageTypeID",
+						"type": "INT32"
+					},
+					{
+						"name": "Quantity",
+						"type": "INT32"
+					},
+					{
+						"name": "UnitPrice",
+						"type": "DECIMAL",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "TaxRate",
+						"type": "DECIMAL",
+						"precision": 18,
+						"scale": 3
+					},
+					{
+						"name": "TaxAmount",
+						"type": "DECIMAL",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "LineProfit",
+						"type": "DECIMAL",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "ExtendedPrice",
+						"type": "DECIMAL",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "LastEditedBy",
+						"type": "INT32"
+					},
+					{
+						"name": "LastEditedWhen",
+						"type": "INT96"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Invoices')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Data Warehouse Full Load"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "Invoices.parquet",
+						"folderPath": "data/Sales/Invoices",
+						"fileSystem": "likht"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "InvoiceID",
+						"type": "INT32"
+					},
+					{
+						"name": "CustomerID",
+						"type": "INT32"
+					},
+					{
+						"name": "BillToCustomerID",
+						"type": "INT32"
+					},
+					{
+						"name": "OrderID",
+						"type": "INT32"
+					},
+					{
+						"name": "DeliveryMethodID",
+						"type": "INT32"
+					},
+					{
+						"name": "ContactPersonID",
+						"type": "INT32"
+					},
+					{
+						"name": "AccountsPersonID",
+						"type": "INT32"
+					},
+					{
+						"name": "SalespersonPersonID",
+						"type": "INT32"
+					},
+					{
+						"name": "PackedByPersonID",
+						"type": "INT32"
+					},
+					{
+						"name": "InvoiceDate",
+						"type": "DATE"
+					},
+					{
+						"name": "CustomerPurchaseOrderNumber",
+						"type": "UTF8"
+					},
+					{
+						"name": "IsCreditNote",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "CreditNoteReason",
+						"type": "UTF8"
+					},
+					{
+						"name": "Comments",
+						"type": "UTF8"
+					},
+					{
+						"name": "DeliveryInstructions",
+						"type": "UTF8"
+					},
+					{
+						"name": "InternalComments",
+						"type": "UTF8"
+					},
+					{
+						"name": "TotalDryItems",
+						"type": "INT32"
+					},
+					{
+						"name": "TotalChillerItems",
+						"type": "INT32"
+					},
+					{
+						"name": "DeliveryRun",
+						"type": "UTF8"
+					},
+					{
+						"name": "RunPosition",
+						"type": "UTF8"
+					},
+					{
+						"name": "ReturnedDeliveryData",
+						"type": "UTF8"
+					},
+					{
+						"name": "ConfirmedDeliveryTime",
+						"type": "INT96"
+					},
+					{
+						"name": "ConfirmedReceivedBy",
+						"type": "UTF8"
+					},
+					{
+						"name": "LastEditedBy",
+						"type": "INT32"
+					},
+					{
+						"name": "LastEditedWhen",
+						"type": "INT96"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PackageTypes')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Data Warehouse Full Load"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "PackageTypes.parquet",
+						"folderPath": "data/Warehouse/PackageTypes",
+						"fileSystem": "likht"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "PackageTypeID",
+						"type": "INT32"
+					},
+					{
+						"name": "PackageTypeName",
+						"type": "UTF8"
+					},
+					{
+						"name": "LastEditedBy",
+						"type": "INT32"
+					},
+					{
+						"name": "ValidFrom",
+						"type": "INT96"
+					},
+					{
+						"name": "ValidTo",
+						"type": "INT96"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/People')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Data Warehouse Full Load"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "People.parquet",
+						"folderPath": "data/Application/People",
+						"fileSystem": "likht"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "PersonID",
+						"type": "INT32"
+					},
+					{
+						"name": "FullName",
+						"type": "UTF8"
+					},
+					{
+						"name": "PreferredName",
+						"type": "UTF8"
+					},
+					{
+						"name": "SearchName",
+						"type": "UTF8"
+					},
+					{
+						"name": "IsPermittedToLogon",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "LogonName",
+						"type": "UTF8"
+					},
+					{
+						"name": "IsExternalLogonProvider",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "HashedPassword",
+						"type": "BINARY"
+					},
+					{
+						"name": "IsSystemUser",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "IsEmployee",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "IsSalesperson",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "UserPreferences",
+						"type": "UTF8"
+					},
+					{
+						"name": "PhoneNumber",
+						"type": "UTF8"
+					},
+					{
+						"name": "FaxNumber",
+						"type": "UTF8"
+					},
+					{
+						"name": "EmailAddress",
+						"type": "UTF8"
+					},
+					{
+						"name": "Photo",
+						"type": "BINARY"
+					},
+					{
+						"name": "CustomFields",
+						"type": "UTF8"
+					},
+					{
+						"name": "OtherLanguages",
+						"type": "UTF8"
+					},
+					{
+						"name": "LastEditedBy",
+						"type": "INT32"
+					},
+					{
+						"name": "ValidFrom",
+						"type": "INT96"
+					},
+					{
+						"name": "ValidTo",
+						"type": "INT96"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/People_Archive')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ADLS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Data Warehouse Full Load"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "People_Archive.parquet",
+						"folderPath": "data/Application/People_Archive",
+						"fileSystem": "likht"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "PersonID",
+						"type": "INT32"
+					},
+					{
+						"name": "FullName",
+						"type": "UTF8"
+					},
+					{
+						"name": "PreferredName",
+						"type": "UTF8"
+					},
+					{
+						"name": "SearchName",
+						"type": "UTF8"
+					},
+					{
+						"name": "IsPermittedToLogon",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "LogonName",
+						"type": "UTF8"
+					},
+					{
+						"name": "IsExternalLogonProvider",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "HashedPassword",
+						"type": "BINARY"
+					},
+					{
+						"name": "IsSystemUser",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "IsEmployee",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "IsSalesperson",
+						"type": "BOOLEAN"
+					},
+					{
+						"name": "UserPreferences",
+						"type": "UTF8"
+					},
+					{
+						"name": "PhoneNumber",
+						"type": "UTF8"
+					},
+					{
+						"name": "FaxNumber",
+						"type": "UTF8"
+					},
+					{
+						"name": "EmailAddress",
+						"type": "UTF8"
+					},
+					{
+						"name": "Photo",
+						"type": "BINARY"
+					},
+					{
+						"name": "CustomFields",
+						"type": "UTF8"
+					},
+					{
+						"name": "OtherLanguages",
+						"type": "UTF8"
+					},
+					{
+						"name": "LastEditedBy",
+						"type": "INT32"
+					},
+					{
+						"name": "ValidFrom",
+						"type": "INT96"
+					},
+					{
+						"name": "ValidTo",
+						"type": "INT96"
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Purchasing_parquet')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -3851,208 +4605,6 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/WWI_Standard')]",
 				"[concat(variables('factoryId'), '/datasets/Warehouse_parquet')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Ingestion Full Load')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Load Application",
-						"type": "ExecutePipeline",
-						"dependsOn": [],
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Application Ingestion Full Load",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": false,
-							"parameters": {
-								"Table_Name": {
-									"value": "@pipeline().parameters.ApplicationTables",
-									"type": "Expression"
-								},
-								"Schema_Name": {
-									"value": "@pipeline().parameters.ApplicationSchema",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Load Purchasing",
-						"type": "ExecutePipeline",
-						"dependsOn": [],
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Purchasing Ingestion Full Load",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": false,
-							"parameters": {
-								"Table_Name": {
-									"value": "@pipeline().parameters.PurchasingTables",
-									"type": "Expression"
-								},
-								"Schema_Name": {
-									"value": "@pipeline().parameters.PurchasingSchema",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Load Sales",
-						"type": "ExecutePipeline",
-						"dependsOn": [],
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Sales Ingestion Full Load",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": false,
-							"parameters": {
-								"Table_Name": {
-									"value": "@pipeline().parameters.SalesTables",
-									"type": "Expression"
-								},
-								"Schema_Name": {
-									"value": "@pipeline().parameters.SalesSchema",
-									"type": "Expression"
-								}
-							}
-						}
-					},
-					{
-						"name": "Load Warehouse",
-						"type": "ExecutePipeline",
-						"dependsOn": [],
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "Warehouse Ingestion Full Load",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": false,
-							"parameters": {
-								"Table_Name": {
-									"value": "@pipeline().parameters.WarehouseTables",
-									"type": "Expression"
-								},
-								"Schema_Name": {
-									"value": "@pipeline().parameters.WarehouseSchema",
-									"type": "Expression"
-								}
-							}
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"parameters": {
-					"ApplicationTables": {
-						"type": "array",
-						"defaultValue": [
-							"Cities",
-							"Cities_Archive",
-							"Countries",
-							"Countries_Archive",
-							"DeliveryMethods",
-							"DeliveryMethods_Archive",
-							"PaymentMethods",
-							"PaymentMethods_Archive",
-							"People",
-							"People_Archive",
-							"StateProvinces",
-							"StateProvinces_Archive",
-							"SystemParameters",
-							"TransactionTypes",
-							"TransactionTypes_Archive"
-						]
-					},
-					"PurchasingTables": {
-						"type": "array",
-						"defaultValue": [
-							"PurchaseOrderLines",
-							"PurchaseOrders",
-							"SupplierCategories",
-							"SupplierCategories_Archive",
-							"Suppliers",
-							"Suppliers_Archive",
-							"SupplierTransactions"
-						]
-					},
-					"SalesTables": {
-						"type": "array",
-						"defaultValue": [
-							"BuyingGroups",
-							"BuyingGroups_Archive",
-							"CustomerCategories",
-							"CustomerCategories_Archive",
-							"Customers",
-							"Customers_Archive",
-							"CustomerTransactions",
-							"InvoiceLines",
-							"Invoices",
-							"OrderLines",
-							"Orders",
-							"SpecialDeals"
-						]
-					},
-					"WarehouseTables": {
-						"type": "array",
-						"defaultValue": [
-							"ColdRoomTemperatures",
-							"ColdRoomTemperatures_Archive",
-							"Colors",
-							"Colors_Archive",
-							"PackageTypes",
-							"PackageTypes_Archive",
-							"StockGroups",
-							"StockGroups_Archive",
-							"StockItemHoldings",
-							"StockItems",
-							"StockItems_Archive",
-							"StockItemStockGroups",
-							"StockItemTransactions",
-							"VehicleTemperatures"
-						]
-					},
-					"ApplicationSchema": {
-						"type": "string",
-						"defaultValue": "Application"
-					},
-					"PurchasingSchema": {
-						"type": "string",
-						"defaultValue": "Purchasing"
-					},
-					"SalesSchema": {
-						"type": "string",
-						"defaultValue": "Sales"
-					},
-					"WarehouseSchema": {
-						"type": "string",
-						"defaultValue": "Warehouse"
-					}
-				},
-				"folder": {
-					"name": "Ingestion Full Load"
-				},
-				"annotations": [],
-				"lastPublishTime": "2023-05-12T08:45:55Z"
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/Application Ingestion Full Load')]",
-				"[concat(variables('factoryId'), '/pipelines/Purchasing Ingestion Full Load')]",
-				"[concat(variables('factoryId'), '/pipelines/Sales Ingestion Full Load')]",
-				"[concat(variables('factoryId'), '/pipelines/Warehouse Ingestion Full Load')]"
 			]
 		}
 	]

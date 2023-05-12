@@ -1,0 +1,1744 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "likht-adf"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/Dimension_City')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Data Warehouse Full Load"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Countries",
+								"type": "DatasetReference"
+							},
+							"name": "Countries"
+						},
+						{
+							"dataset": {
+								"referenceName": "Countries_Archive",
+								"type": "DatasetReference"
+							},
+							"name": "CountriesArchive"
+						},
+						{
+							"dataset": {
+								"referenceName": "StateProvinces",
+								"type": "DatasetReference"
+							},
+							"name": "StateProvinces"
+						},
+						{
+							"dataset": {
+								"referenceName": "StateProvinces_Archive",
+								"type": "DatasetReference"
+							},
+							"name": "StateProvincesArchive"
+						},
+						{
+							"dataset": {
+								"referenceName": "Cities",
+								"type": "DatasetReference"
+							},
+							"name": "Cities"
+						},
+						{
+							"dataset": {
+								"referenceName": "Cities_Archive",
+								"type": "DatasetReference"
+							},
+							"name": "CitiesArchive"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DataWarehouse",
+								"type": "DatasetReference"
+							},
+							"name": "LoadDimensionCity"
+						}
+					],
+					"transformations": [
+						{
+							"name": "CountriesAll"
+						},
+						{
+							"name": "CountriesChangeList"
+						},
+						{
+							"name": "StateProvincesAll"
+						},
+						{
+							"name": "StateProvincesChangeList"
+						},
+						{
+							"name": "CitiesAll"
+						},
+						{
+							"name": "CitiesChangeList"
+						},
+						{
+							"name": "JoinStateProvinces"
+						},
+						{
+							"name": "JoinCountries"
+						},
+						{
+							"name": "RenameColumns"
+						},
+						{
+							"name": "UpdateValidToField"
+						},
+						{
+							"name": "AddLineageKey"
+						},
+						{
+							"name": "SortByValidFrom"
+						},
+						{
+							"name": "AddCityKey"
+						},
+						{
+							"name": "ChangeColumnsOrder"
+						},
+						{
+							"name": "EctractOneRow"
+						},
+						{
+							"name": "AddDefaultRow"
+						},
+						{
+							"name": "DefaultRow"
+						},
+						{
+							"name": "CountriesCutoff"
+						},
+						{
+							"name": "StateProvincesCutoff"
+						},
+						{
+							"name": "CitiesCutoff"
+						},
+						{
+							"name": "SelectValidityPeriods"
+						},
+						{
+							"name": "filter1"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     EndOfTime as timestamp (toTimestamp('9999-12-31 23:59:59.0000000','yyyy-MM-dd HH:mm:ss.SSS')),",
+						"     LastCutoff as timestamp (toTimestamp('2012-05-06T12:31:17.0000000','yyyy-MM-dd\\'T\\'HH:mm:ss.SSS')),",
+						"     NewCutoff as timestamp (currentTimestamp())",
+						"}",
+						"source(output(",
+						"          CountryID as integer,",
+						"          CountryName as string,",
+						"          FormalName as string,",
+						"          IsoAlpha3Code as string,",
+						"          IsoNumericCode as integer,",
+						"          CountryType as string,",
+						"          LatestRecordedPopulation as long,",
+						"          Continent as string,",
+						"          Region as string,",
+						"          Subregion as string,",
+						"          Border as string,",
+						"          LastEditedBy as integer,",
+						"          ValidFrom as timestamp,",
+						"          ValidTo as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> Countries",
+						"source(output(",
+						"          CountryID as integer,",
+						"          CountryName as string,",
+						"          FormalName as string,",
+						"          IsoAlpha3Code as string,",
+						"          IsoNumericCode as integer,",
+						"          CountryType as string,",
+						"          LatestRecordedPopulation as long,",
+						"          Continent as string,",
+						"          Region as string,",
+						"          Subregion as string,",
+						"          Border as string,",
+						"          LastEditedBy as integer,",
+						"          ValidFrom as timestamp,",
+						"          ValidTo as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> CountriesArchive",
+						"source(output(",
+						"          StateProvinceID as integer,",
+						"          StateProvinceCode as string,",
+						"          StateProvinceName as string,",
+						"          CountryID as integer,",
+						"          SalesTerritory as string,",
+						"          Border as string,",
+						"          LatestRecordedPopulation as long,",
+						"          LastEditedBy as integer,",
+						"          ValidFrom as timestamp,",
+						"          ValidTo as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> StateProvinces",
+						"source(output(",
+						"          StateProvinceID as integer,",
+						"          StateProvinceCode as string,",
+						"          StateProvinceName as string,",
+						"          CountryID as integer,",
+						"          SalesTerritory as string,",
+						"          Border as string,",
+						"          LatestRecordedPopulation as long,",
+						"          LastEditedBy as integer,",
+						"          ValidFrom as timestamp,",
+						"          ValidTo as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> StateProvincesArchive",
+						"source(output(",
+						"          CityID as integer,",
+						"          CityName as string,",
+						"          StateProvinceID as integer,",
+						"          Location as string,",
+						"          LatestRecordedPopulation as long,",
+						"          LastEditedBy as integer,",
+						"          ValidFrom as timestamp,",
+						"          ValidTo as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> Cities",
+						"source(output(",
+						"          CityID as integer,",
+						"          CityName as string,",
+						"          StateProvinceID as integer,",
+						"          Location as string,",
+						"          LatestRecordedPopulation as long,",
+						"          LastEditedBy as integer,",
+						"          ValidFrom as timestamp,",
+						"          ValidTo as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> CitiesArchive",
+						"Countries, CountriesArchive union(byName: true)~> CountriesAll",
+						"CountriesCutoff select(mapColumn(",
+						"          CountryID,",
+						"          CountryName,",
+						"          Continent,",
+						"          Region,",
+						"          Subregion,",
+						"          ValidFrom,",
+						"          ValidTo",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> CountriesChangeList",
+						"StateProvinces, StateProvincesArchive union(byName: true)~> StateProvincesAll",
+						"StateProvincesCutoff select(mapColumn(",
+						"          StateProvinceID,",
+						"          StateProvinceName,",
+						"          CountryID,",
+						"          SalesTerritory,",
+						"          ValidFrom,",
+						"          ValidTo",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> StateProvincesChangeList",
+						"Cities, CitiesArchive union(byName: true)~> CitiesAll",
+						"CitiesCutoff select(mapColumn(",
+						"          CityID,",
+						"          CityName,",
+						"          StateProvinceID,",
+						"          Location,",
+						"          LatestRecordedPopulation,",
+						"          ValidFrom,",
+						"          ValidTo",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> CitiesChangeList",
+						"CitiesChangeList, StateProvincesChangeList join(CitiesChangeList@StateProvinceID == StateProvincesChangeList@StateProvinceID",
+						"     && CitiesChangeList@ValidTo > StateProvincesChangeList@ValidFrom",
+						"     && CitiesChangeList@ValidFrom < StateProvincesChangeList@ValidTo,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'right')~> JoinStateProvinces",
+						"JoinStateProvinces, CountriesChangeList join(StateProvincesChangeList@CountryID == CountriesChangeList@CountryID,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinCountries",
+						"JoinCountries select(mapColumn(",
+						"          WWICityID = CityID,",
+						"          City = CityName,",
+						"          StateProvince = StateProvinceName,",
+						"          Country = CountryName,",
+						"          Continent,",
+						"          SalesTerritory,",
+						"          Region,",
+						"          Subregion,",
+						"          Location,",
+						"          LatestRecordedPopulation,",
+						"          cValidFrom = CitiesChangeList@ValidFrom,",
+						"          cValidTo = CitiesChangeList@ValidTo,",
+						"          spValidFrom = StateProvincesChangeList@ValidFrom,",
+						"          spValidTo = StateProvincesChangeList@ValidTo,",
+						"          cnValidFrom = CountriesChangeList@ValidFrom,",
+						"          cnValidTo = CountriesChangeList@ValidTo",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> RenameColumns",
+						"SelectValidityPeriods window(over(WWICityID),",
+						"     asc(ValidFrom, true),",
+						"     ValidTo = lead(ValidFrom, 1, $EndOfTime)) ~> UpdateValidToField",
+						"filter1 derive(LoadDateTime = $NewCutoff,",
+						"          LatestRecordedPopulation = coalesce(LatestRecordedPopulation, 0)) ~> AddLineageKey",
+						"AddLineageKey sort(asc(ValidFrom, true)) ~> SortByValidFrom",
+						"SortByValidFrom keyGenerate(output(CityKey as long),",
+						"     startAt: 1L,",
+						"     stepValue: 1L) ~> AddCityKey",
+						"AddCityKey select(mapColumn(",
+						"          CityKey,",
+						"          WWICityID,",
+						"          City,",
+						"          StateProvince,",
+						"          Country,",
+						"          Continent,",
+						"          SalesTerritory,",
+						"          Region,",
+						"          Subregion,",
+						"          Location,",
+						"          LatestRecordedPopulation,",
+						"          ValidFrom,",
+						"          ValidTo,",
+						"          LineageKey = LoadDateTime",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> ChangeColumnsOrder",
+						"ChangeColumnsOrder filter(CityKey == 1) ~> EctractOneRow",
+						"ChangeColumnsOrder, DefaultRow union(byName: true)~> AddDefaultRow",
+						"EctractOneRow derive(CityKey = 0,",
+						"          WWICityID = 0,",
+						"          City = 'Unknown',",
+						"          StateProvince = 'N/A',",
+						"          Country = 'N/A',",
+						"          Continent = 'N/A',",
+						"          SalesTerritory = 'N/A',",
+						"          Region = 'N/A',",
+						"          Subregion = 'N/A',",
+						"          Location = toString(null()),",
+						"          LatestRecordedPopulation = 0,",
+						"          ValidFrom = toTimestamp('2013-01-01T00:00:00.0000000','yyyy-MM-dd\\'T\\'HH:mm:ss.SSS'),",
+						"          ValidTo = $EndOfTime) ~> DefaultRow",
+						"CountriesAll filter(ValidFrom > $LastCutoff && ValidFrom <= $NewCutoff) ~> CountriesCutoff",
+						"StateProvincesAll filter(ValidFrom > $LastCutoff && ValidFrom <= $NewCutoff) ~> StateProvincesCutoff",
+						"CitiesAll filter(ValidFrom > $LastCutoff && ValidFrom <= $NewCutoff) ~> CitiesCutoff",
+						"RenameColumns derive(ValidFrom = greatest(cValidFrom, spValidFrom, cnValidFrom),",
+						"          ValidTo = least(cValidTo, spValidTo, cnValidTo)) ~> SelectValidityPeriods",
+						"UpdateValidToField filter(ValidFrom < ValidTo) ~> filter1",
+						"AddDefaultRow sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          CityID as integer,",
+						"          CityName as string,",
+						"          StateProvinceID as integer,",
+						"          Location as binary,",
+						"          LatestRecordedPopulation as long,",
+						"          LastEditedBy as integer,",
+						"          ValidFrom as timestamp,",
+						"          ValidTo as timestamp",
+						"     ),",
+						"     format: 'parquet',",
+						"     partitionFileNames:['Dimension_City2.parquet'],",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> LoadDimensionCity"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Dimension_Customer')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Data Warehouse Full Load"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "BuyingGroups",
+								"type": "DatasetReference"
+							},
+							"name": "BuyingGroups"
+						},
+						{
+							"dataset": {
+								"referenceName": "BuyingGroups_Archive",
+								"type": "DatasetReference"
+							},
+							"name": "BuyingGroupsArchive"
+						},
+						{
+							"dataset": {
+								"referenceName": "CustomerCategories",
+								"type": "DatasetReference"
+							},
+							"name": "CustomerCategories"
+						},
+						{
+							"dataset": {
+								"referenceName": "CustomerCategories_Archive",
+								"type": "DatasetReference"
+							},
+							"name": "CustomerCategoriesArchive"
+						},
+						{
+							"dataset": {
+								"referenceName": "Customers",
+								"type": "DatasetReference"
+							},
+							"name": "Customers"
+						},
+						{
+							"dataset": {
+								"referenceName": "Customers_Archive",
+								"type": "DatasetReference"
+							},
+							"name": "CustomersArchive"
+						},
+						{
+							"dataset": {
+								"referenceName": "People",
+								"type": "DatasetReference"
+							},
+							"name": "People"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DataWarehouse",
+								"type": "DatasetReference"
+							},
+							"name": "LoadDimensionCustomer"
+						}
+					],
+					"transformations": [
+						{
+							"name": "BuyingGroupsAll"
+						},
+						{
+							"name": "CustomerCategoriesAll"
+						},
+						{
+							"name": "CustomersAll"
+						},
+						{
+							"name": "c"
+						},
+						{
+							"name": "bt"
+						},
+						{
+							"name": "JoinBuyingGroups"
+						},
+						{
+							"name": "JoinCustomerCategories"
+						},
+						{
+							"name": "JoinBillToCustomers"
+						},
+						{
+							"name": "JoinPeople"
+						},
+						{
+							"name": "RenameNeededColumnsOnly"
+						},
+						{
+							"name": "UpdateValidToField"
+						},
+						{
+							"name": "AddLineageKey"
+						},
+						{
+							"name": "SortByValidFrom"
+						},
+						{
+							"name": "AddCustomerKey"
+						},
+						{
+							"name": "ChangeColumnsOrder"
+						},
+						{
+							"name": "ExtractOneRow"
+						},
+						{
+							"name": "AddDefaultRow"
+						},
+						{
+							"name": "DefaultRow"
+						},
+						{
+							"name": "BuyingGroupCutoff"
+						},
+						{
+							"name": "CustomerCategoriesCutoff"
+						},
+						{
+							"name": "BilToCustomersCutoff"
+						},
+						{
+							"name": "CustomersCutoff"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     EndOfTime as timestamp (toTimestamp('9999-12-31 23:59:59.999','yyyy-MM-dd HH:mm:ss.SSS')),",
+						"     LastCutoff as timestamp (toTimestamp('2012-05-06T12:31:17.0000000','yyyy-MM-dd\\'T\\'HH:mm:ss.SSS')),",
+						"     NewCutoff as timestamp (currentTimestamp())",
+						"}",
+						"source(output(",
+						"          BuyingGroupID as integer,",
+						"          BuyingGroupName as string,",
+						"          LastEditedBy as integer,",
+						"          ValidFrom as timestamp,",
+						"          ValidTo as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> BuyingGroups",
+						"source(output(",
+						"          BuyingGroupID as integer,",
+						"          BuyingGroupName as string,",
+						"          LastEditedBy as integer,",
+						"          ValidFrom as timestamp,",
+						"          ValidTo as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> BuyingGroupsArchive",
+						"source(output(",
+						"          CustomerCategoryID as integer,",
+						"          CustomerCategoryName as string,",
+						"          LastEditedBy as integer,",
+						"          ValidFrom as timestamp,",
+						"          ValidTo as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> CustomerCategories",
+						"source(output(",
+						"          CustomerCategoryID as integer,",
+						"          CustomerCategoryName as string,",
+						"          LastEditedBy as integer,",
+						"          ValidFrom as timestamp,",
+						"          ValidTo as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> CustomerCategoriesArchive",
+						"source(output(",
+						"          CustomerID as integer,",
+						"          CustomerName as string,",
+						"          BillToCustomerID as integer,",
+						"          CustomerCategoryID as integer,",
+						"          BuyingGroupID as integer,",
+						"          PrimaryContactPersonID as integer,",
+						"          AlternateContactPersonID as integer,",
+						"          DeliveryMethodID as integer,",
+						"          DeliveryCityID as integer,",
+						"          PostalCityID as integer,",
+						"          CreditLimit as decimal(18,2),",
+						"          AccountOpenedDate as date,",
+						"          StandardDiscountPercentage as decimal(18,3),",
+						"          IsStatementSent as boolean,",
+						"          IsOnCreditHold as boolean,",
+						"          PaymentDays as integer,",
+						"          PhoneNumber as string,",
+						"          FaxNumber as string,",
+						"          DeliveryRun as string,",
+						"          RunPosition as string,",
+						"          WebsiteURL as string,",
+						"          DeliveryAddressLine1 as string,",
+						"          DeliveryAddressLine2 as string,",
+						"          DeliveryPostalCode as string,",
+						"          DeliveryLocation as string,",
+						"          PostalAddressLine1 as string,",
+						"          PostalAddressLine2 as string,",
+						"          PostalPostalCode as string,",
+						"          LastEditedBy as integer,",
+						"          ValidFrom as timestamp,",
+						"          ValidTo as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> Customers",
+						"source(output(",
+						"          CustomerID as integer,",
+						"          CustomerName as string,",
+						"          BillToCustomerID as integer,",
+						"          CustomerCategoryID as integer,",
+						"          BuyingGroupID as integer,",
+						"          PrimaryContactPersonID as integer,",
+						"          AlternateContactPersonID as integer,",
+						"          DeliveryMethodID as integer,",
+						"          DeliveryCityID as integer,",
+						"          PostalCityID as integer,",
+						"          CreditLimit as decimal(18,2),",
+						"          AccountOpenedDate as date,",
+						"          StandardDiscountPercentage as decimal(18,3),",
+						"          IsStatementSent as boolean,",
+						"          IsOnCreditHold as boolean,",
+						"          PaymentDays as integer,",
+						"          PhoneNumber as string,",
+						"          FaxNumber as string,",
+						"          DeliveryRun as string,",
+						"          RunPosition as string,",
+						"          WebsiteURL as string,",
+						"          DeliveryAddressLine1 as string,",
+						"          DeliveryAddressLine2 as string,",
+						"          DeliveryPostalCode as string,",
+						"          DeliveryLocation as string,",
+						"          PostalAddressLine1 as string,",
+						"          PostalAddressLine2 as string,",
+						"          PostalPostalCode as string,",
+						"          LastEditedBy as integer,",
+						"          ValidFrom as timestamp,",
+						"          ValidTo as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> CustomersArchive",
+						"source(output(",
+						"          PersonID as integer,",
+						"          FullName as string,",
+						"          PreferredName as string,",
+						"          SearchName as string,",
+						"          IsPermittedToLogon as boolean,",
+						"          LogonName as string,",
+						"          IsExternalLogonProvider as boolean,",
+						"          HashedPassword as binary,",
+						"          IsSystemUser as boolean,",
+						"          IsEmployee as boolean,",
+						"          IsSalesperson as boolean,",
+						"          UserPreferences as string,",
+						"          PhoneNumber as string,",
+						"          FaxNumber as string,",
+						"          EmailAddress as string,",
+						"          Photo as binary,",
+						"          CustomFields as string,",
+						"          OtherLanguages as string,",
+						"          LastEditedBy as integer,",
+						"          ValidFrom as timestamp,",
+						"          ValidTo as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> People",
+						"BuyingGroups, BuyingGroupsArchive union(byName: true)~> BuyingGroupsAll",
+						"CustomerCategories, CustomerCategoriesArchive union(byName: true)~> CustomerCategoriesAll",
+						"Customers, CustomersArchive union(byName: true)~> CustomersAll",
+						"CustomersCutoff select(mapColumn(",
+						"          CustomerID,",
+						"          CustomerName,",
+						"          BillToCustomerID,",
+						"          CustomerCategoryID,",
+						"          BuyingGroupID,",
+						"          PrimaryContactPersonID,",
+						"          AlternateContactPersonID,",
+						"          DeliveryMethodID,",
+						"          DeliveryCityID,",
+						"          PostalCityID,",
+						"          CreditLimit,",
+						"          AccountOpenedDate,",
+						"          StandardDiscountPercentage,",
+						"          IsStatementSent,",
+						"          IsOnCreditHold,",
+						"          PaymentDays,",
+						"          PhoneNumber,",
+						"          FaxNumber,",
+						"          DeliveryRun,",
+						"          RunPosition,",
+						"          WebsiteURL,",
+						"          DeliveryAddressLine1,",
+						"          DeliveryAddressLine2,",
+						"          DeliveryPostalCode,",
+						"          DeliveryLocation,",
+						"          PostalAddressLine1,",
+						"          PostalAddressLine2,",
+						"          PostalPostalCode,",
+						"          LastEditedBy,",
+						"          ValidFrom,",
+						"          ValidTo",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> c",
+						"BilToCustomersCutoff select(mapColumn(",
+						"          CustomerID,",
+						"          CustomerName,",
+						"          BillToCustomerID,",
+						"          CustomerCategoryID,",
+						"          BuyingGroupID,",
+						"          PrimaryContactPersonID,",
+						"          AlternateContactPersonID,",
+						"          DeliveryMethodID,",
+						"          DeliveryCityID,",
+						"          PostalCityID,",
+						"          CreditLimit,",
+						"          AccountOpenedDate,",
+						"          StandardDiscountPercentage,",
+						"          IsStatementSent,",
+						"          IsOnCreditHold,",
+						"          PaymentDays,",
+						"          PhoneNumber,",
+						"          FaxNumber,",
+						"          DeliveryRun,",
+						"          RunPosition,",
+						"          WebsiteURL,",
+						"          DeliveryAddressLine1,",
+						"          DeliveryAddressLine2,",
+						"          DeliveryPostalCode,",
+						"          DeliveryLocation,",
+						"          PostalAddressLine1,",
+						"          PostalAddressLine2,",
+						"          PostalPostalCode,",
+						"          LastEditedBy,",
+						"          ValidFrom,",
+						"          ValidTo",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> bt",
+						"c, BuyingGroupsAll join(c@BuyingGroupID == BuyingGroupsAll@BuyingGroupID,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinBuyingGroups",
+						"JoinBuyingGroups, CustomerCategoriesAll join(c@CustomerCategoryID == CustomerCategoriesAll@CustomerCategoryID,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinCustomerCategories",
+						"JoinCustomerCategories, bt join(c@BillToCustomerID == bt@CustomerID,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinBillToCustomers",
+						"JoinBillToCustomers, People join(c@PrimaryContactPersonID == PersonID,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinPeople",
+						"JoinPeople select(mapColumn(",
+						"          WWICustomerID = c@CustomerID,",
+						"          Customer = c@CustomerName,",
+						"          BillToCustomer = bt@CustomerName,",
+						"          Category = CustomerCategoryName,",
+						"          BuyingGroup = BuyingGroupName,",
+						"          PrimaryContact = FullName,",
+						"          PostalCode = c@DeliveryPostalCode,",
+						"          ValidFrom = c@ValidFrom,",
+						"          ValidTo = c@ValidTo",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> RenameNeededColumnsOnly",
+						"RenameNeededColumnsOnly window(over(WWICustomerID),",
+						"     asc(ValidFrom, true),",
+						"     ValidTo = lead(ValidFrom, 1, $EndOfTime)) ~> UpdateValidToField",
+						"UpdateValidToField derive(LoadDateTime = $NewCutoff) ~> AddLineageKey",
+						"AddLineageKey sort(asc(ValidFrom, true)) ~> SortByValidFrom",
+						"SortByValidFrom keyGenerate(output(CustomerKey as long),",
+						"     startAt: 1L,",
+						"     stepValue: 1L) ~> AddCustomerKey",
+						"AddCustomerKey select(mapColumn(",
+						"          CustomerKey,",
+						"          WWICustomerID,",
+						"          Customer,",
+						"          BillToCustomer,",
+						"          Category,",
+						"          BuyingGroup,",
+						"          PrimaryContact,",
+						"          PostalCode,",
+						"          ValidFrom,",
+						"          ValidTo,",
+						"          LoadDateTime",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> ChangeColumnsOrder",
+						"ChangeColumnsOrder filter(CustomerKey == 1) ~> ExtractOneRow",
+						"ChangeColumnsOrder, DefaultRow union(byName: true)~> AddDefaultRow",
+						"ExtractOneRow derive(CustomerKey = 0,",
+						"          WWICustomerID = 0,",
+						"          Customer = 'Unknown',",
+						"          BillToCustomer = 'N/A',",
+						"          Category = 'N/A',",
+						"          BuyingGroup = 'N/A',",
+						"          PrimaryContact = 'N/A',",
+						"          PostalCode = 'N/A',",
+						"          ValidFrom = toTimestamp('2013-01-01T00:00:00.0000000','yyyy-MM-dd\\'T\\'HH:mm:ss.SSS'),",
+						"          ValidTo = $EndOfTime) ~> DefaultRow",
+						"BuyingGroupsAll filter(ValidFrom > $LastCutoff && ValidFrom <= $NewCutoff) ~> BuyingGroupCutoff",
+						"CustomerCategoriesAll filter(ValidFrom > $LastCutoff && ValidFrom <= $NewCutoff) ~> CustomerCategoriesCutoff",
+						"CustomersAll filter(ValidFrom > $LastCutoff && ValidFrom <= $NewCutoff) ~> BilToCustomersCutoff",
+						"CustomersAll filter(ValidFrom > $LastCutoff && ValidFrom <= $NewCutoff) ~> CustomersCutoff",
+						"AddDefaultRow sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          CityID as integer,",
+						"          CityName as string,",
+						"          StateProvinceID as integer,",
+						"          Location as binary,",
+						"          LatestRecordedPopulation as long,",
+						"          LastEditedBy as integer,",
+						"          ValidFrom as timestamp,",
+						"          ValidTo as timestamp",
+						"     ),",
+						"     format: 'parquet',",
+						"     partitionFileNames:['Dimension_Customer.parquet'],",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> LoadDimensionCustomer"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Dimension_Date')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Data Warehouse Full Load"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Dim_Date",
+								"type": "DatasetReference"
+							},
+							"name": "Date"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "Dimension_Date",
+								"type": "DatasetReference"
+							},
+							"name": "LoadDimensionDate"
+						}
+					],
+					"transformations": [
+						{
+							"name": "CalculateColumns",
+							"flowlet": {
+								"referenceName": "TimeFlowlet",
+								"type": "DataFlowReference",
+								"parameters": {}
+							}
+						},
+						{
+							"name": "DatesOnlyToTheEndOf2023"
+						},
+						{
+							"name": "Dates2017And2020"
+						},
+						{
+							"name": "Dates2013And2016"
+						},
+						{
+							"name": "Dates2021And2023"
+						},
+						{
+							"name": "UnionOriginalDatesTo2020"
+						},
+						{
+							"name": "AddDaysToOriginalDates2"
+						},
+						{
+							"name": "UnionDatesTo2023"
+						},
+						{
+							"name": "AddDaysToOriginalDates"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     DateCounter as date (addMonths(lastDayOfMonth(currentDate()),12))",
+						"}",
+						"source(output(",
+						"          Date as date,",
+						"          {Day Number} as integer,",
+						"          Day as string,",
+						"          Month as string,",
+						"          {Short Month} as string,",
+						"          {Calendar Month Number} as integer,",
+						"          {Calendar Month Label} as string,",
+						"          {Calendar Year} as integer,",
+						"          {Calendar Year Label} as string,",
+						"          {Fiscal Month Number} as integer,",
+						"          {Fiscal Month Label} as string,",
+						"          {Fiscal Year} as integer,",
+						"          {Fiscal Year Label} as string,",
+						"          {ISO Week Number} as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> Date",
+						"DatesOnlyToTheEndOf2023 compose(mapColumn(",
+						"          DateColumn = Date",
+						"     ),",
+						"     composition: 'TimeFlowlet') ~> CalculateColumns@(output)",
+						"UnionDatesTo2023 filter(Date <= addMonths(currentDate(), 12)) ~> DatesOnlyToTheEndOf2023",
+						"Date select(mapColumn(",
+						"          Date,",
+						"          {Day Number},",
+						"          Day,",
+						"          Month,",
+						"          {Short Month},",
+						"          {Calendar Month Number},",
+						"          {Calendar Month Label},",
+						"          {Calendar Year},",
+						"          {Calendar Year Label},",
+						"          {Fiscal Month Number},",
+						"          {Fiscal Month Label},",
+						"          {Fiscal Year},",
+						"          {Fiscal Year Label},",
+						"          {ISO Week Number}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> Dates2017And2020",
+						"Date select(mapColumn(",
+						"          Date,",
+						"          {Day Number},",
+						"          Day,",
+						"          Month,",
+						"          {Short Month},",
+						"          {Calendar Month Number},",
+						"          {Calendar Month Label},",
+						"          {Calendar Year},",
+						"          {Calendar Year Label},",
+						"          {Fiscal Month Number},",
+						"          {Fiscal Month Label},",
+						"          {Fiscal Year},",
+						"          {Fiscal Year Label},",
+						"          {ISO Week Number}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> Dates2013And2016",
+						"Date select(mapColumn(",
+						"          Date,",
+						"          {Day Number},",
+						"          Day,",
+						"          Month,",
+						"          {Short Month},",
+						"          {Calendar Month Number},",
+						"          {Calendar Month Label},",
+						"          {Calendar Year},",
+						"          {Calendar Year Label},",
+						"          {Fiscal Month Number},",
+						"          {Fiscal Month Label},",
+						"          {Fiscal Year},",
+						"          {Fiscal Year Label},",
+						"          {ISO Week Number}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> Dates2021And2023",
+						"Dates2013And2016, AddDaysToOriginalDates2 union(byName: true)~> UnionOriginalDatesTo2020",
+						"Dates2017And2020 derive(Date = addDays(Date, 1461)) ~> AddDaysToOriginalDates2",
+						"UnionOriginalDatesTo2020, AddDaysToOriginalDates union(byName: true)~> UnionDatesTo2023",
+						"Dates2021And2023 derive(Date = addDays(Date, 2922)) ~> AddDaysToOriginalDates",
+						"CalculateColumns@output sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          DateColumn as date,",
+						"          DayNumber as integer,",
+						"          Day as integer,",
+						"          Month as string,",
+						"          ShortMonth as string,",
+						"          CalendarMonthNumber as integer,",
+						"          CalendarMonthLabel as string,",
+						"          CalendarYear as integer,",
+						"          CalendarYearLabel as string,",
+						"          FiscalMonthNumber as integer,",
+						"          FiscalMonthLabel as string,",
+						"          FiscalYear as integer,",
+						"          FiscalYearLabel as string,",
+						"          ISOWeekNumber as integer",
+						"     ),",
+						"     format: 'parquet',",
+						"     partitionFileNames:['Dimension_Date.parquet'],",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> LoadDimensionDate"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Dimension_Employee')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Data Warehouse Full Load"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "People",
+								"type": "DatasetReference"
+							},
+							"name": "People"
+						},
+						{
+							"dataset": {
+								"referenceName": "People_Archive",
+								"type": "DatasetReference"
+							},
+							"name": "PeopleArchive"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DataWarehouse",
+								"type": "DatasetReference"
+							},
+							"name": "LoadDimensionEmployee"
+						}
+					],
+					"transformations": [
+						{
+							"name": "Employees"
+						},
+						{
+							"name": "PeopleArchiveEmployees"
+						},
+						{
+							"name": "EmployeesAll"
+						},
+						{
+							"name": "UpdateValidToColumn"
+						},
+						{
+							"name": "AddLineageKey"
+						},
+						{
+							"name": "SortByValidFrom"
+						},
+						{
+							"name": "AddEmployeeKey"
+						},
+						{
+							"name": "RenameNeededColumns"
+						},
+						{
+							"name": "ExtractOneRow"
+						},
+						{
+							"name": "DefaltRow"
+						},
+						{
+							"name": "AddDefaultRow"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     EndOfTime as timestamp (toTimestamp('9999-12-31 23:59:59.999','yyyy-MM-dd HH:mm:ss.SSS')),",
+						"     LastCutoff as timestamp (toTimestamp('2012-05-06T12:31:17.0000000','yyyy-MM-dd\\'T\\'HH:mm:ss.SSS')),",
+						"     NewCutoff as timestamp (currentTimestamp())",
+						"}",
+						"source(output(",
+						"          PersonID as integer,",
+						"          FullName as string,",
+						"          PreferredName as string,",
+						"          SearchName as string,",
+						"          IsPermittedToLogon as boolean,",
+						"          LogonName as string,",
+						"          IsExternalLogonProvider as boolean,",
+						"          HashedPassword as binary,",
+						"          IsSystemUser as boolean,",
+						"          IsEmployee as boolean,",
+						"          IsSalesperson as boolean,",
+						"          UserPreferences as string,",
+						"          PhoneNumber as string,",
+						"          FaxNumber as string,",
+						"          EmailAddress as string,",
+						"          Photo as binary,",
+						"          CustomFields as string,",
+						"          OtherLanguages as string,",
+						"          LastEditedBy as integer,",
+						"          ValidFrom as timestamp,",
+						"          ValidTo as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> People",
+						"source(output(",
+						"          PersonID as integer,",
+						"          FullName as string,",
+						"          PreferredName as string,",
+						"          SearchName as string,",
+						"          IsPermittedToLogon as boolean,",
+						"          LogonName as string,",
+						"          IsExternalLogonProvider as boolean,",
+						"          HashedPassword as binary,",
+						"          IsSystemUser as boolean,",
+						"          IsEmployee as boolean,",
+						"          IsSalesperson as boolean,",
+						"          UserPreferences as string,",
+						"          PhoneNumber as string,",
+						"          FaxNumber as string,",
+						"          EmailAddress as string,",
+						"          Photo as binary,",
+						"          CustomFields as string,",
+						"          OtherLanguages as string,",
+						"          LastEditedBy as integer,",
+						"          ValidFrom as timestamp,",
+						"          ValidTo as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> PeopleArchive",
+						"People filter(ValidFrom > $LastCutoff && ValidFrom <= $NewCutoff && IsEmployee == true()) ~> Employees",
+						"PeopleArchive filter(ValidFrom > $LastCutoff && ValidFrom <= $NewCutoff && IsEmployee == true()) ~> PeopleArchiveEmployees",
+						"Employees, PeopleArchiveEmployees union(byName: true)~> EmployeesAll",
+						"EmployeesAll window(over(PersonID),",
+						"     asc(ValidFrom, true),",
+						"     ValidTo = lead(ValidFrom, 1, $EndOfTime)) ~> UpdateValidToColumn",
+						"UpdateValidToColumn derive(LoadDateTime = $NewCutoff) ~> AddLineageKey",
+						"AddLineageKey sort(asc(ValidFrom, true)) ~> SortByValidFrom",
+						"SortByValidFrom keyGenerate(output(EmployeeKey as long),",
+						"     startAt: 1L,",
+						"     stepValue: 1L) ~> AddEmployeeKey",
+						"AddEmployeeKey select(mapColumn(",
+						"          EmployeeKey,",
+						"          WWIEmployeeID = PersonID,",
+						"          Employee = FullName,",
+						"          PreferredName,",
+						"          IsSalesperson,",
+						"          Photo,",
+						"          ValidFrom,",
+						"          ValidTo,",
+						"          LineageKey = LoadDateTime",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> RenameNeededColumns",
+						"RenameNeededColumns filter(EmployeeKey == 1) ~> ExtractOneRow",
+						"ExtractOneRow derive(EmployeeKey = 0,",
+						"          WWIEmployeeID = 0,",
+						"          Employee = 'Unknown',",
+						"          PreferredName = 'N/A',",
+						"          IsSalesperson = false(),",
+						"          ValidFrom = toTimestamp('2013-01-01T00:00:00.0000000','yyyy-MM-dd\\'T\\'HH:mm:ss.SSS'),",
+						"          ValidTo = $EndOfTime) ~> DefaltRow",
+						"RenameNeededColumns, DefaltRow union(byName: true)~> AddDefaultRow",
+						"AddDefaultRow sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          CityID as integer,",
+						"          CityName as string,",
+						"          StateProvinceID as integer,",
+						"          Location as binary,",
+						"          LatestRecordedPopulation as long,",
+						"          LastEditedBy as integer,",
+						"          ValidFrom as timestamp,",
+						"          ValidTo as timestamp",
+						"     ),",
+						"     format: 'parquet',",
+						"     partitionFileNames:['Dimension_Employee.parquet'],",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> LoadDimensionEmployee"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Dimension_StockItem')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Data Warehouse Full Load"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "StockItems",
+								"type": "DatasetReference"
+							},
+							"name": "StockItems"
+						},
+						{
+							"dataset": {
+								"referenceName": "StockItems_Archive",
+								"type": "DatasetReference"
+							},
+							"name": "StockItemsArchive"
+						},
+						{
+							"dataset": {
+								"referenceName": "PackageTypes",
+								"type": "DatasetReference"
+							},
+							"name": "PackageTypes"
+						},
+						{
+							"dataset": {
+								"referenceName": "Colors",
+								"type": "DatasetReference"
+							},
+							"name": "Colors"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DataWarehouse",
+								"type": "DatasetReference"
+							},
+							"name": "LoadDimensionStickItem"
+						}
+					],
+					"transformations": [
+						{
+							"name": "StockItemsAll"
+						},
+						{
+							"name": "StockItemsCutoff"
+						},
+						{
+							"name": "StockItemsArchiveCutoff"
+						},
+						{
+							"name": "bpt"
+						},
+						{
+							"name": "spt"
+						},
+						{
+							"name": "JoinUnitPackageType"
+						},
+						{
+							"name": "JoinOuterPackageType"
+						},
+						{
+							"name": "JoinColors"
+						},
+						{
+							"name": "RenameNeededColumnsOnly"
+						},
+						{
+							"name": "UpdateValidToField"
+						},
+						{
+							"name": "AddLineageKey"
+						},
+						{
+							"name": "SortByValidFrom"
+						},
+						{
+							"name": "AddStockItemKey"
+						},
+						{
+							"name": "ChangeColumnsOrder"
+						},
+						{
+							"name": "ExtrcatOneRow"
+						},
+						{
+							"name": "AddDefaultRow"
+						},
+						{
+							"name": "DefaultRow"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     LastCutoff as timestamp (toTimestamp('2012-05-06T12:31:17.0000000','yyyy-MM-dd\\'T\\'HH:mm:ss.SSS')),",
+						"     NewCutoff as timestamp (currentTimestamp()),",
+						"     EndOfTime as timestamp (toTimestamp('9999-12-31 23:59:59.999','yyyy-MM-dd HH:mm:ss.SSS'))",
+						"}",
+						"source(output(",
+						"          StockItemID as integer,",
+						"          StockItemName as string,",
+						"          SupplierID as integer,",
+						"          ColorID as integer,",
+						"          UnitPackageID as integer,",
+						"          OuterPackageID as integer,",
+						"          Brand as string,",
+						"          Size as string,",
+						"          LeadTimeDays as integer,",
+						"          QuantityPerOuter as integer,",
+						"          IsChillerStock as boolean,",
+						"          Barcode as string,",
+						"          TaxRate as decimal(18,3),",
+						"          UnitPrice as decimal(18,2),",
+						"          RecommendedRetailPrice as decimal(18,2),",
+						"          TypicalWeightPerUnit as decimal(18,3),",
+						"          MarketingComments as string,",
+						"          InternalComments as string,",
+						"          Photo as binary,",
+						"          CustomFields as string,",
+						"          Tags as string,",
+						"          SearchDetails as string,",
+						"          LastEditedBy as integer,",
+						"          ValidFrom as timestamp,",
+						"          ValidTo as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> StockItems",
+						"source(output(",
+						"          StockItemID as integer,",
+						"          StockItemName as string,",
+						"          SupplierID as integer,",
+						"          ColorID as integer,",
+						"          UnitPackageID as integer,",
+						"          OuterPackageID as integer,",
+						"          Brand as string,",
+						"          Size as string,",
+						"          LeadTimeDays as integer,",
+						"          QuantityPerOuter as integer,",
+						"          IsChillerStock as boolean,",
+						"          Barcode as string,",
+						"          TaxRate as decimal(18,3),",
+						"          UnitPrice as decimal(18,2),",
+						"          RecommendedRetailPrice as decimal(18,2),",
+						"          TypicalWeightPerUnit as decimal(18,3),",
+						"          MarketingComments as string,",
+						"          InternalComments as string,",
+						"          Photo as binary,",
+						"          CustomFields as string,",
+						"          Tags as string,",
+						"          SearchDetails as string,",
+						"          LastEditedBy as integer,",
+						"          ValidFrom as timestamp,",
+						"          ValidTo as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> StockItemsArchive",
+						"source(output(",
+						"          PackageTypeID as integer,",
+						"          PackageTypeName as string,",
+						"          LastEditedBy as integer,",
+						"          ValidFrom as timestamp,",
+						"          ValidTo as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> PackageTypes",
+						"source(output(",
+						"          ColorID as integer,",
+						"          ColorName as string,",
+						"          LastEditedBy as integer,",
+						"          ValidFrom as timestamp,",
+						"          ValidTo as timestamp",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> Colors",
+						"StockItemsCutoff, StockItemsArchiveCutoff union(byName: true)~> StockItemsAll",
+						"StockItems filter(ValidFrom > $LastCutoff && ValidFrom <= $NewCutoff) ~> StockItemsCutoff",
+						"StockItemsArchive filter(ValidFrom > $LastCutoff && ValidFrom <= $NewCutoff) ~> StockItemsArchiveCutoff",
+						"PackageTypes select(mapColumn(",
+						"          PackageTypeID,",
+						"          PackageTypeName,",
+						"          LastEditedBy,",
+						"          ValidFrom,",
+						"          ValidTo",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> bpt",
+						"PackageTypes select(mapColumn(",
+						"          PackageTypeID,",
+						"          PackageTypeName,",
+						"          LastEditedBy,",
+						"          ValidFrom,",
+						"          ValidTo",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> spt",
+						"StockItemsAll, spt join(UnitPackageID == PackageTypeID,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinUnitPackageType",
+						"JoinUnitPackageType, bpt join(OuterPackageID == bpt@PackageTypeID,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinOuterPackageType",
+						"JoinOuterPackageType, Colors join(StockItemsAll@ColorID == Colors@ColorID,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinColors",
+						"JoinColors select(mapColumn(",
+						"          WWIStockItemID = StockItemID,",
+						"          StockItem = StockItemName,",
+						"          Color = ColorName,",
+						"          SellingPackage = spt@PackageTypeName,",
+						"          BuyingPackage = bpt@PackageTypeName,",
+						"          Brand,",
+						"          Size,",
+						"          LeadTimeDays,",
+						"          QuantityPerOuter,",
+						"          IsChillerStock,",
+						"          Barcode,",
+						"          TaxRate,",
+						"          UnitPrice,",
+						"          RecommendedRetailPrice,",
+						"          TypicalWeightPerUnit,",
+						"          Photo,",
+						"          ValidFrom = StockItemsAll@ValidFrom,",
+						"          ValidTo = StockItemsAll@ValidTo",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> RenameNeededColumnsOnly",
+						"RenameNeededColumnsOnly window(over(WWIStockItemID),",
+						"     asc(ValidFrom, true),",
+						"     ValidTo = lead(ValidFrom, 1, $EndOfTime)) ~> UpdateValidToField",
+						"UpdateValidToField derive(LoadDateTime = $NewCutoff) ~> AddLineageKey",
+						"AddLineageKey sort(asc(ValidFrom, true)) ~> SortByValidFrom",
+						"SortByValidFrom keyGenerate(output(StockItemKey as long),",
+						"     startAt: 1L,",
+						"     stepValue: 1L) ~> AddStockItemKey",
+						"AddStockItemKey select(mapColumn(",
+						"          StockItemKey,",
+						"          WWIStockItemID,",
+						"          StockItem,",
+						"          Color,",
+						"          SellingPackage,",
+						"          BuyingPackage,",
+						"          Brand,",
+						"          Size,",
+						"          LeadTimeDays,",
+						"          QuantityPerOuter,",
+						"          IsChillerStock,",
+						"          Barcode,",
+						"          TaxRate,",
+						"          UnitPrice,",
+						"          RecommendedRetailPrice,",
+						"          TypicalWeightPerUnit,",
+						"          Photo,",
+						"          ValidFrom,",
+						"          ValidTo,",
+						"          LineageKey = LoadDateTime",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> ChangeColumnsOrder",
+						"ChangeColumnsOrder filter(StockItemKey == 1) ~> ExtrcatOneRow",
+						"ChangeColumnsOrder, DefaultRow union(byName: true)~> AddDefaultRow",
+						"ExtrcatOneRow derive(StockItemKey = 0,",
+						"          WWIStockItemID = 0,",
+						"          StockItem = 'Unknown',",
+						"          Color = 'N/A',",
+						"          SellingPackage = 'N/A',",
+						"          BuyingPackage = 'N/A',",
+						"          Brand = 'N/A',",
+						"          Size = 'N/A',",
+						"          LeadTimeDays = 0,",
+						"          QuantityPerOuter = 0,",
+						"          IsChillerStock = false(),",
+						"          Barcode = 'N/A',",
+						"          TaxRate = 0.000,",
+						"          UnitPrice = 0.00,",
+						"          RecommendedRetailPrice = 0.00,",
+						"          TypicalWeightPerUnit = 0.000,",
+						"          ValidFrom = toTimestamp('2013-01-01T00:00:00.0000000','yyyy-MM-dd\\'T\\'HH:mm:ss.SSS'),",
+						"          ValidTo = $EndOfTime) ~> DefaultRow",
+						"AddDefaultRow sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          CityID as integer,",
+						"          CityName as string,",
+						"          StateProvinceID as integer,",
+						"          Location as binary,",
+						"          LatestRecordedPopulation as long,",
+						"          LastEditedBy as integer,",
+						"          ValidFrom as timestamp,",
+						"          ValidTo as timestamp",
+						"     ),",
+						"     format: 'parquet',",
+						"     partitionFileNames:['Dimension_StockItem.parquet'],",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> LoadDimensionStickItem"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Ingestion Full Load')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Load Application",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Application Ingestion Full Load",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": false,
+							"parameters": {
+								"Table_Name": {
+									"value": "@pipeline().parameters.ApplicationTables",
+									"type": "Expression"
+								},
+								"Schema_Name": {
+									"value": "@pipeline().parameters.ApplicationSchema",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Load Purchasing",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Purchasing Ingestion Full Load",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": false,
+							"parameters": {
+								"Table_Name": {
+									"value": "@pipeline().parameters.PurchasingTables",
+									"type": "Expression"
+								},
+								"Schema_Name": {
+									"value": "@pipeline().parameters.PurchasingSchema",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Load Sales",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Sales Ingestion Full Load",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": false,
+							"parameters": {
+								"Table_Name": {
+									"value": "@pipeline().parameters.SalesTables",
+									"type": "Expression"
+								},
+								"Schema_Name": {
+									"value": "@pipeline().parameters.SalesSchema",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Load Warehouse",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "Warehouse Ingestion Full Load",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": false,
+							"parameters": {
+								"Table_Name": {
+									"value": "@pipeline().parameters.WarehouseTables",
+									"type": "Expression"
+								},
+								"Schema_Name": {
+									"value": "@pipeline().parameters.WarehouseSchema",
+									"type": "Expression"
+								}
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"ApplicationTables": {
+						"type": "array",
+						"defaultValue": [
+							"Cities",
+							"Cities_Archive",
+							"Countries",
+							"Countries_Archive",
+							"DeliveryMethods",
+							"DeliveryMethods_Archive",
+							"PaymentMethods",
+							"PaymentMethods_Archive",
+							"People",
+							"People_Archive",
+							"StateProvinces",
+							"StateProvinces_Archive",
+							"SystemParameters",
+							"TransactionTypes",
+							"TransactionTypes_Archive"
+						]
+					},
+					"PurchasingTables": {
+						"type": "array",
+						"defaultValue": [
+							"PurchaseOrderLines",
+							"PurchaseOrders",
+							"SupplierCategories",
+							"SupplierCategories_Archive",
+							"Suppliers",
+							"Suppliers_Archive",
+							"SupplierTransactions"
+						]
+					},
+					"SalesTables": {
+						"type": "array",
+						"defaultValue": [
+							"BuyingGroups",
+							"BuyingGroups_Archive",
+							"CustomerCategories",
+							"CustomerCategories_Archive",
+							"Customers",
+							"Customers_Archive",
+							"CustomerTransactions",
+							"InvoiceLines",
+							"Invoices",
+							"OrderLines",
+							"Orders",
+							"SpecialDeals"
+						]
+					},
+					"WarehouseTables": {
+						"type": "array",
+						"defaultValue": [
+							"ColdRoomTemperatures",
+							"ColdRoomTemperatures_Archive",
+							"Colors",
+							"Colors_Archive",
+							"PackageTypes",
+							"PackageTypes_Archive",
+							"StockGroups",
+							"StockGroups_Archive",
+							"StockItemHoldings",
+							"StockItems",
+							"StockItems_Archive",
+							"StockItemStockGroups",
+							"StockItemTransactions",
+							"VehicleTemperatures"
+						]
+					},
+					"ApplicationSchema": {
+						"type": "string",
+						"defaultValue": "Application"
+					},
+					"PurchasingSchema": {
+						"type": "string",
+						"defaultValue": "Purchasing"
+					},
+					"SalesSchema": {
+						"type": "string",
+						"defaultValue": "Sales"
+					},
+					"WarehouseSchema": {
+						"type": "string",
+						"defaultValue": "Warehouse"
+					}
+				},
+				"folder": {
+					"name": "Ingestion Full Load"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-05-12T08:45:55Z"
+			},
+			"dependsOn": []
+		}
+	]
+}

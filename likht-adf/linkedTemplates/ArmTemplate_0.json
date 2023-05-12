@@ -72,6 +72,86 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/TimeFlowlet')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "Data Warehouse Full Load"
+				},
+				"type": "Flowlet",
+				"typeProperties": {
+					"sources": [],
+					"sinks": [],
+					"transformations": [
+						{
+							"name": "GenerateNewFieldsBasedOnDate"
+						},
+						{
+							"name": "UpdateLabelColumns"
+						},
+						{
+							"name": "RenameColumns"
+						},
+						{
+							"name": "input"
+						},
+						{
+							"name": "output"
+						}
+					],
+					"scriptLines": [
+						"input(output(",
+						"          DateColumn as date",
+						"     ),",
+						"     order: 0,",
+						"     allowSchemaDrift: true) ~> input",
+						"input derive({Day Number} = dayOfMonth(DateColumn),",
+						"          Day = dayOfMonth(DateColumn),",
+						"          Month = case(month(DateColumn) == 1, 'January', month(DateColumn) == 2, 'February', month(DateColumn) == 3, 'March', month(DateColumn) == 4, 'April', \r",
+						"month(DateColumn) == 5, 'May', month(DateColumn) == 6, 'June', month(DateColumn) == 7, 'July', month(DateColumn) == 8, 'August', \r",
+						"month(DateColumn) == 9, 'September', month(DateColumn) == 10, 'October', month(DateColumn) == 11, 'November', month(DateColumn) == 12, 'December'),",
+						"          {Short Month} = case(month(DateColumn) == 1, 'Jan', month(DateColumn) == 2, 'Feb', month(DateColumn) == 3, 'Mar', month(DateColumn) == 4, 'Apr', \r",
+						"month(DateColumn) == 5, 'May', month(DateColumn) == 6, 'June', month(DateColumn) == 7, 'July', month(DateColumn) == 8, 'Aug', \r",
+						"month(DateColumn) == 9, 'Sept', month(DateColumn) == 10, 'Oct', month(DateColumn) == 11, 'Nov', month(DateColumn) == 12, 'Dec'),",
+						"          {Calendar Month Number} = month(DateColumn),",
+						"          {Calendar Month Label} = 1,",
+						"          {Calendar Year} = year(DateColumn),",
+						"          {Calendar Year Label} = 1,",
+						"          {Fiscal Month Number} = month(DateColumn) + 2,",
+						"          {Fiscal Month Label} = 1,",
+						"          {Fiscal Year} = year(DateColumn),",
+						"          {Fiscal Year Label} = 1,",
+						"          {ISO Week Number} = dayOfWeek(DateColumn)) ~> GenerateNewFieldsBasedOnDate",
+						"GenerateNewFieldsBasedOnDate derive({Calendar Year Label} = concat('CY', toString({Calendar Year})),",
+						"          {Fiscal Year Label} = concat('FY', toString({Fiscal Year})),",
+						"          {Calendar Month Label} = concat('CY', toString({Calendar Year}), '-', toString({Short Month})),",
+						"          {Fiscal Month Label} = concat('FY', toString({Calendar Year}), '-', toString({Short Month}))) ~> UpdateLabelColumns",
+						"UpdateLabelColumns select(mapColumn(",
+						"          DateColumn,",
+						"          DayNumber = {Day Number},",
+						"          Day,",
+						"          Month,",
+						"          ShortMonth = {Short Month},",
+						"          CalendarMonthNumber = {Calendar Month Number},",
+						"          CalendarMonthLabel = {Calendar Month Label},",
+						"          CalendarYear = {Calendar Year},",
+						"          CalendarYearLabel = {Calendar Year Label},",
+						"          FiscalMonthNumber = {Fiscal Month Number},",
+						"          FiscalMonthLabel = {Fiscal Month Label},",
+						"          FiscalYear = {Fiscal Year},",
+						"          FiscalYearLabel = {Fiscal Year Label},",
+						"          ISOWeekNumber = {ISO Week Number}",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> RenameColumns",
+						"RenameColumns output() ~> output"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Application_parquet')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -1006,7 +1086,7 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/InvoiceLines')]",
+			"name": "[concat(parameters('factoryName'), '/DataWarehouse')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -1022,242 +1102,32 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
-						"fileName": "InvoiceLines.parquet",
-						"folderPath": "data/Sales/InvoiceLines",
+						"fileName": "dw.parquet",
+						"folderPath": "data/data-warehouse/Full-Load",
 						"fileSystem": "likht"
 					},
 					"compressionCodec": "snappy"
 				},
 				"schema": [
 					{
-						"name": "InvoiceLineID",
+						"name": "CityID",
 						"type": "INT32"
 					},
 					{
-						"name": "InvoiceID",
-						"type": "INT32"
-					},
-					{
-						"name": "StockItemID",
-						"type": "INT32"
-					},
-					{
-						"name": "Description",
+						"name": "CityName",
 						"type": "UTF8"
 					},
 					{
-						"name": "PackageTypeID",
+						"name": "StateProvinceID",
 						"type": "INT32"
 					},
 					{
-						"name": "Quantity",
-						"type": "INT32"
+						"name": "Location",
+						"type": "BINARY"
 					},
 					{
-						"name": "UnitPrice",
-						"type": "DECIMAL",
-						"precision": 18,
-						"scale": 2
-					},
-					{
-						"name": "TaxRate",
-						"type": "DECIMAL",
-						"precision": 18,
-						"scale": 3
-					},
-					{
-						"name": "TaxAmount",
-						"type": "DECIMAL",
-						"precision": 18,
-						"scale": 2
-					},
-					{
-						"name": "LineProfit",
-						"type": "DECIMAL",
-						"precision": 18,
-						"scale": 2
-					},
-					{
-						"name": "ExtendedPrice",
-						"type": "DECIMAL",
-						"precision": 18,
-						"scale": 2
-					},
-					{
-						"name": "LastEditedBy",
-						"type": "INT32"
-					},
-					{
-						"name": "LastEditedWhen",
-						"type": "INT96"
-					}
-				]
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ADLS')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Invoices')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ADLS",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "Data Warehouse Full Load"
-				},
-				"annotations": [],
-				"type": "Parquet",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": "Invoices.parquet",
-						"folderPath": "data/Sales/Invoices",
-						"fileSystem": "likht"
-					},
-					"compressionCodec": "snappy"
-				},
-				"schema": [
-					{
-						"name": "InvoiceID",
-						"type": "INT32"
-					},
-					{
-						"name": "CustomerID",
-						"type": "INT32"
-					},
-					{
-						"name": "BillToCustomerID",
-						"type": "INT32"
-					},
-					{
-						"name": "OrderID",
-						"type": "INT32"
-					},
-					{
-						"name": "DeliveryMethodID",
-						"type": "INT32"
-					},
-					{
-						"name": "ContactPersonID",
-						"type": "INT32"
-					},
-					{
-						"name": "AccountsPersonID",
-						"type": "INT32"
-					},
-					{
-						"name": "SalespersonPersonID",
-						"type": "INT32"
-					},
-					{
-						"name": "PackedByPersonID",
-						"type": "INT32"
-					},
-					{
-						"name": "InvoiceDate",
-						"type": "DATE"
-					},
-					{
-						"name": "CustomerPurchaseOrderNumber",
-						"type": "UTF8"
-					},
-					{
-						"name": "IsCreditNote",
-						"type": "BOOLEAN"
-					},
-					{
-						"name": "CreditNoteReason",
-						"type": "UTF8"
-					},
-					{
-						"name": "Comments",
-						"type": "UTF8"
-					},
-					{
-						"name": "DeliveryInstructions",
-						"type": "UTF8"
-					},
-					{
-						"name": "InternalComments",
-						"type": "UTF8"
-					},
-					{
-						"name": "TotalDryItems",
-						"type": "INT32"
-					},
-					{
-						"name": "TotalChillerItems",
-						"type": "INT32"
-					},
-					{
-						"name": "DeliveryRun",
-						"type": "UTF8"
-					},
-					{
-						"name": "RunPosition",
-						"type": "UTF8"
-					},
-					{
-						"name": "ReturnedDeliveryData",
-						"type": "UTF8"
-					},
-					{
-						"name": "ConfirmedDeliveryTime",
-						"type": "INT96"
-					},
-					{
-						"name": "ConfirmedReceivedBy",
-						"type": "UTF8"
-					},
-					{
-						"name": "LastEditedBy",
-						"type": "INT32"
-					},
-					{
-						"name": "LastEditedWhen",
-						"type": "INT96"
-					}
-				]
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ADLS')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/PackageTypes')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ADLS",
-					"type": "LinkedServiceReference"
-				},
-				"folder": {
-					"name": "Data Warehouse Full Load"
-				},
-				"annotations": [],
-				"type": "Parquet",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": "PackageTypes.parquet",
-						"folderPath": "data/Warehouse/PackageTypes",
-						"fileSystem": "likht"
-					},
-					"compressionCodec": "snappy"
-				},
-				"schema": [
-					{
-						"name": "PackageTypeID",
-						"type": "INT32"
-					},
-					{
-						"name": "PackageTypeName",
-						"type": "UTF8"
+						"name": "LatestRecordedPopulation",
+						"type": "INT64"
 					},
 					{
 						"name": "LastEditedBy",
@@ -1278,7 +1148,94 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/People')]",
+			"name": "[concat(parameters('factoryName'), '/Dim_Date')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "WWIInput",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Data Warehouse Full Load"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "Date",
+						"type": "date"
+					},
+					{
+						"name": "Day Number",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Day",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Month",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Short Month",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Calendar Month Number",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Calendar Month Label",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Calendar Year",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Calendar Year Label",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Fiscal Month Number",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Fiscal Month Label",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Fiscal Year",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Fiscal Year Label",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ISO Week Number",
+						"type": "int",
+						"precision": 10
+					}
+				],
+				"typeProperties": {
+					"schema": "Dimension",
+					"table": "Date"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/WWIInput')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Dimension_City')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -1294,88 +1251,56 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
-						"fileName": "People.parquet",
-						"folderPath": "data/Application/People",
+						"fileName": "Dimension_City.parquet",
+						"folderPath": "data/data-warehouse/Full-Load",
 						"fileSystem": "likht"
 					},
 					"compressionCodec": "snappy"
 				},
 				"schema": [
 					{
-						"name": "PersonID",
+						"name": "CityKey",
+						"type": "INT64"
+					},
+					{
+						"name": "WWICityID",
 						"type": "INT32"
 					},
 					{
-						"name": "FullName",
+						"name": "City",
 						"type": "UTF8"
 					},
 					{
-						"name": "PreferredName",
+						"name": "StateProvince",
 						"type": "UTF8"
 					},
 					{
-						"name": "SearchName",
+						"name": "Country",
 						"type": "UTF8"
 					},
 					{
-						"name": "IsPermittedToLogon",
-						"type": "BOOLEAN"
-					},
-					{
-						"name": "LogonName",
+						"name": "Continent",
 						"type": "UTF8"
 					},
 					{
-						"name": "IsExternalLogonProvider",
-						"type": "BOOLEAN"
+						"name": "SalesTerritory",
+						"type": "UTF8"
 					},
 					{
-						"name": "HashedPassword",
+						"name": "Region",
+						"type": "UTF8"
+					},
+					{
+						"name": "Subregion",
+						"type": "UTF8"
+					},
+					{
+						"name": "Location",
 						"type": "BINARY"
 					},
 					{
-						"name": "IsSystemUser",
-						"type": "BOOLEAN"
-					},
-					{
-						"name": "IsEmployee",
-						"type": "BOOLEAN"
-					},
-					{
-						"name": "IsSalesperson",
-						"type": "BOOLEAN"
-					},
-					{
-						"name": "UserPreferences",
-						"type": "UTF8"
-					},
-					{
-						"name": "PhoneNumber",
-						"type": "UTF8"
-					},
-					{
-						"name": "FaxNumber",
-						"type": "UTF8"
-					},
-					{
-						"name": "EmailAddress",
-						"type": "UTF8"
-					},
-					{
-						"name": "Photo",
-						"type": "BINARY"
-					},
-					{
-						"name": "CustomFields",
-						"type": "UTF8"
-					},
-					{
-						"name": "OtherLanguages",
-						"type": "UTF8"
-					},
-					{
-						"name": "LastEditedBy",
-						"type": "INT32"
+						"name": "LatestRecordedPopulation",
+						"type": "INT64"
 					},
 					{
 						"name": "ValidFrom",
@@ -1383,6 +1308,10 @@
 					},
 					{
 						"name": "ValidTo",
+						"type": "INT96"
+					},
+					{
+						"name": "LineageKey",
 						"type": "INT96"
 					}
 				]
@@ -1392,7 +1321,7 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/People_Archive')]",
+			"name": "[concat(parameters('factoryName'), '/Dimension_Customer')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -1408,88 +1337,44 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
-						"fileName": "People_Archive.parquet",
-						"folderPath": "data/Application/People_Archive",
+						"fileName": "Dimension_Customer.parquet",
+						"folderPath": "data/data-warehouse/Full-Load",
 						"fileSystem": "likht"
 					},
 					"compressionCodec": "snappy"
 				},
 				"schema": [
 					{
-						"name": "PersonID",
+						"name": "CustomerKey",
+						"type": "INT64"
+					},
+					{
+						"name": "WWICustomerID",
 						"type": "INT32"
 					},
 					{
-						"name": "FullName",
+						"name": "Customer",
 						"type": "UTF8"
 					},
 					{
-						"name": "PreferredName",
+						"name": "BillToCustomer",
 						"type": "UTF8"
 					},
 					{
-						"name": "SearchName",
+						"name": "Category",
 						"type": "UTF8"
 					},
 					{
-						"name": "IsPermittedToLogon",
-						"type": "BOOLEAN"
-					},
-					{
-						"name": "LogonName",
+						"name": "BuyingGroup",
 						"type": "UTF8"
 					},
 					{
-						"name": "IsExternalLogonProvider",
-						"type": "BOOLEAN"
-					},
-					{
-						"name": "HashedPassword",
-						"type": "BINARY"
-					},
-					{
-						"name": "IsSystemUser",
-						"type": "BOOLEAN"
-					},
-					{
-						"name": "IsEmployee",
-						"type": "BOOLEAN"
-					},
-					{
-						"name": "IsSalesperson",
-						"type": "BOOLEAN"
-					},
-					{
-						"name": "UserPreferences",
+						"name": "PrimaryContact",
 						"type": "UTF8"
 					},
 					{
-						"name": "PhoneNumber",
+						"name": "PostalCode",
 						"type": "UTF8"
-					},
-					{
-						"name": "FaxNumber",
-						"type": "UTF8"
-					},
-					{
-						"name": "EmailAddress",
-						"type": "UTF8"
-					},
-					{
-						"name": "Photo",
-						"type": "BINARY"
-					},
-					{
-						"name": "CustomFields",
-						"type": "UTF8"
-					},
-					{
-						"name": "OtherLanguages",
-						"type": "UTF8"
-					},
-					{
-						"name": "LastEditedBy",
-						"type": "INT32"
 					},
 					{
 						"name": "ValidFrom",
@@ -1497,6 +1382,10 @@
 					},
 					{
 						"name": "ValidTo",
+						"type": "INT96"
+					},
+					{
+						"name": "LineageKey",
 						"type": "INT96"
 					}
 				]
