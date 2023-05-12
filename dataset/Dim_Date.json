@@ -2,7 +2,7 @@
 	"name": "Dim_Date",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "WWIInput",
+			"referenceName": "WWIDWInput",
 			"type": "LinkedServiceReference"
 		},
 		"folder": {
